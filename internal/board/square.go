@@ -8,6 +8,9 @@ type Square struct {
 	number int
 }
 
+// TODO: Create function for creating Square by numbers with validation
+// TODO: Create function for creating Square by a string with validation
+
 // Letter returns the column (letter) as a string
 func (s Square) Letter() string {
 	return string(rune('A' - 0 + s.letter))
