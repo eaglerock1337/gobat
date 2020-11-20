@@ -2,32 +2,43 @@ package board
 
 import "testing"
 
-func TestLetter(t *testing.T) {
-	example := Square{2, 2}
-	result := "C"
+var examples = []Square{
+	Square{0, 0},
+	Square{2, 2},
+	Square{5, 2},
+	Square{9, 6},
+	Square{6, 9},
+}
 
-	answer := example.Letter()
-	if answer != result {
-		t.Errorf("Letter function was incorrect, got: %v, want:%v", answer, result)
+func TestLetter(t *testing.T) {
+	results := [5]string{"A", "C", "F", "J", "G"}
+
+	for i := 0; i < 5; i++ {
+		answer := examples[i].Letter()
+		if answer != results[i] {
+			t.Errorf("Letter function was incorrect, got: %v, want:%v", answer, results[i])
+		}
 	}
 }
 
 func TestNumber(t *testing.T) {
-	example := Square{2, 2}
-	result := "3"
+	results := [5]string{"1", "3", "3", "7", "10"}
 
-	answer := example.Number()
-	if answer != result {
-		t.Errorf("Number function was incorrect, got: %v, want:%v", answer, result)
+	for i := 0; i < 5; i++ {
+		answer := examples[i].Number()
+		if answer != results[i] {
+			t.Errorf("Letter function was incorrect, got: %v, want:%v", answer, results[i])
+		}
 	}
 }
 
 func TestSquare(t *testing.T) {
-	example := Square{2, 2}
-	result := "C3"
+	results := [5]string{"A1", "C3", "F3", "J7", "G10"}
 
-	answer := example.Square()
-	if answer != result {
-		t.Errorf("Square function was incorrect, got: %v, want:%v", answer, result)
+	for i := 0; i < 4; i++ {
+		answer := examples[i].Square()
+		if answer != results[i] {
+			t.Errorf("Square function was incorrect, got: %v, want:%v", answer, results[i])
+		}
 	}
 }
