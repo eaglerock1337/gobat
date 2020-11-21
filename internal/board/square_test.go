@@ -1,6 +1,9 @@
 package board
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 var exampleValues = [5][2]int{
 	{0, 0},
@@ -10,7 +13,7 @@ var exampleValues = [5][2]int{
 	{6, 9},
 }
 
-var exampleStrings = [5]string{"A1", "C3", "F3", "J7", "G10"}
+var exampleStrings = [5]string{"A1", "c3", "F3", "J7", "g10"}
 
 var examples = [5]Square{
 	Square{0, 0},
@@ -99,7 +102,7 @@ func TestPrintNumber(t *testing.T) {
 func TestPrintSquare(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		answer := examples[i].PrintSquare()
-		if answer != exampleStrings[i] {
+		if answer != strings.ToUpper(exampleStrings[i]) {
 			t.Errorf("Square function was incorrect, got: %v, want:%v", answer, exampleStrings[i])
 		}
 	}
