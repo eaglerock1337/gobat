@@ -28,7 +28,7 @@ var badValues = [5][2]int{
 	{12, -12},
 }
 
-var badStrings = [5]string{"Z1", "3A", "AA", "AA1", "B10"}
+var badStrings = [5]string{"Z1", "3A", "AA", "AA1", "B11"}
 
 func TestStringByValue(t *testing.T) {
 	for i, input := range exampleValues {
