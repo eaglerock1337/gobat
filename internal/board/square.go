@@ -8,8 +8,10 @@ import (
 )
 
 // This is probably a bad idea, but I'm doing it anyway
-var columns = map[string]int{"A": 0, "B": 1, "C": 2, "D": 3, "E": 4,
-	"F": 5, "G": 6, "H": 7, "I": 8, "J": 9}
+var columns = map[string]int{
+	"A": 0, "B": 1, "C": 2, "D": 3, "E": 4,
+	"F": 5, "G": 6, "H": 7, "I": 8, "J": 9,
+}
 
 // Square is a struct for holding a coordinate on the board
 type Square struct {
