@@ -16,11 +16,11 @@ var exampleValues = [5][2]int{
 var exampleStrings = [5]string{"A1", "c3", "F3", "J7", "g10"}
 
 var examples = [5]Square{
-	Square{0, 0},
-	Square{2, 2},
-	Square{5, 2},
-	Square{9, 6},
-	Square{6, 9},
+	{0, 0},
+	{2, 2},
+	{5, 2},
+	{9, 6},
+	{6, 9},
 }
 
 var badValues = [5][2]int{
