@@ -43,11 +43,17 @@ The following assumptions are made for the rules of gameplay:
 
 The approach I am taking to implement this algorithm is to have two different modes the algorithm will use to track the current board state, `seek` mode and `destroy` mode. It will use `seek` mode to hunt out individual ships on the game board, and switch to `destroy` mode any time there are hits on the board that are not part of a sunk ship.
 
+#### Game Board
+
 The algorithm will keep track of the game board which will act as the source of truth during gameplay. At the start of the game, a Go slice (a flexible array) will be generated for each game piece length (2-5 squares) and tally up all possible locations for a ship of the given length. This will be used to generate heatmaps for `seek` mode.
+
+#### Seek Mode
 
 For each turn in `seek` mode, the algorithm will total up the number of possible ship locations for each ship still in the game and generate a total of total potential ship orientations per square. This will be generated into a heatmap, which will be used to recommend the next square to choose. The highest score in the heatmap (or any ties) will be recommended for gameplay.
 
 During gameplay, misses will rule out possible squares for every ship type. When a miss is found, all possibilities in each slice will be removed that includes the chosen square. The next turn will then recalculate the heat map based on what possibilities are left. This may seem inefficient, each turn will only be adding up a potential 600 ship locations into the heatmap, rather than calculating every potential location based on what squares are still available.
+
+#### Destroy Mode
 
 When a hit is detected, the game will then go into `destroy` mode. Hits will be added to the game board as a `generic` hit. Each turn will then find the highest heatmap score for each square adjacent to any hit square until a sink is detected. Once a ship is sunk and the ship type is declared, the algorithm will determine the orientation of the ship, update the game squares to reflect that exact ship that was sunk (e.g. a Destroyer), and remove all of those squares from each slice still in use. For example, if the Cruiser is sunk, the 5-square slice will be discarded and no longer used.
 
