@@ -20,9 +20,9 @@ My implementation of the Battleship algorithm has multiple goals:
 
 * Provide meaningful practice to assist me further learning Go
 * Develop the application myself without using code/pseudocode from others
-* Develop a feature-rich command-line program that for playing Battleship with others
+* Develop a feature-rich command-line program for playing Battleship with others
 * Develop a simulator for testing the competitiveness of the algorithm
-* Develop mutliple additional strategies that can be used by the simulator
+* Test the algorithm against different strategies for placing ships
 * Utilize TDD (test-driven development) and complete a full test suite
 * Use my program to trick some friends as I play Battleship online
 
@@ -49,15 +49,15 @@ The algorithm will keep track of the game board which will act as the source of 
 
 #### Seek Mode
 
-For each turn in `seek` mode, the algorithm will total up the number of possible ship locations for each ship still in the game and generate a total of total potential ship orientations per square. This will be generated into a heatmap, which will be used to recommend the next square to choose. The highest score in the heatmap (or any ties) will be recommended for gameplay.
+For each turn in `seek` mode, the algorithm will total up the number of possible ship locations for each ship still in the game and generate a total of total potential ship orientations per square. This will be generated into a heatmap, which will be used to recommend the next square to choose. The highest score in the heatmap (or any ties) will be recommended for gameplay. During gameplay, misses will rule out possible squares for every ship type. When a miss is found, all possibilities in each slice will be removed that includes the chosen square. The next turn will then recalculate the heat map based on what possibilities are left.
 
-During gameplay, misses will rule out possible squares for every ship type. When a miss is found, all possibilities in each slice will be removed that includes the chosen square. The next turn will then recalculate the heat map based on what possibilities are left. This may seem inefficient, each turn will only be adding up a potential 600 ship locations into the heatmap, rather than calculating every potential location based on what squares are still available.
+This may seem inefficient, but each turn will only be adding up a potential 600 ship locations into the heatmap, rather than calculating every potential location based on what squares are still available. In addition, populating the heatmap only requires a single pass of each slice, and will result in a total possible 1,880 additions to the board each turn, fewer as squares are picked and ruled out and as ships are sunk. Also, since the Destroyer and Submarine both have three squares, adding values to the board is the same computational cost, as it only needs to multiply the 3 square slice by 2 if both ships are in play.
 
 #### Destroy Mode
 
 When a hit is detected, the game will then go into `destroy` mode. Hits will be added to the game board as a `generic` hit. Each turn will then find the highest heatmap score for each square adjacent to any hit square until a sink is detected. Once a ship is sunk and the ship type is declared, the algorithm will determine the orientation of the ship, update the game squares to reflect that exact ship that was sunk (e.g. a Destroyer), and remove all of those squares from each slice still in use. For example, if the Cruiser is sunk, the 5-square slice will be discarded and no longer used.
 
-After a ship is sunk, the algorithm will see if any unaccounted `generic` hit square are still pending. If so, it will resume `destroy` mode as before, otherwise it will continue with `seek` gameplay as before. This will repeat until all five ships are sunk, and the game is won.
+After a ship is sunk, the algorithm will see if any unaccounted `generic` hit squares are still pending. If so, it will resume `destroy` mode as before, otherwise it will continue with `seek` gameplay as before. This will repeat until all five ships are sunk, and the game is won.
 
 ## Usage
 
