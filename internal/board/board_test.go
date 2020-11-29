@@ -92,7 +92,7 @@ func TestGetString(t *testing.T) {
 	var testboard Board
 
 	for i, input := range boardSquares {
-		testboard.SetInt(input, boardIntegers[i])
+		testboard[input.Letter][input.Number] = boardIntegers[i]
 		answer := testboard.GetString(input)
 
 		if answer != boardStrings[i] {
@@ -105,7 +105,7 @@ func TestGetInt(t *testing.T) {
 	var testboard Board
 
 	for i, input := range boardSquares {
-		testboard.SetInt(input, boardIntegers[i])
+		testboard[input.Letter][input.Number] = boardIntegers[i]
 		answer := testboard.GetInt(input)
 
 		if answer != boardIntegers[i] {
@@ -119,7 +119,7 @@ func TestIsEmpty(t *testing.T) {
 	var expected = [5]bool{true, false, false, false, false}
 
 	for i, input := range boardSquares {
-		testboard.SetInt(input, boardTestVals[i])
+		testboard[input.Letter][input.Number] = boardTestVals[i]
 		answer := testboard.IsEmpty(input)
 
 		if answer != expected[i] {
@@ -133,7 +133,7 @@ func TestIsMiss(t *testing.T) {
 	var expected = [5]bool{false, true, false, false, false}
 
 	for i, input := range boardSquares {
-		testboard.SetInt(input, boardTestVals[i])
+		testboard[input.Letter][input.Number] = boardTestVals[i]
 		answer := testboard.IsMiss(input)
 
 		if answer != expected[i] {
@@ -147,7 +147,7 @@ func TestIsHit(t *testing.T) {
 	var expected = [5]bool{false, false, true, true, true}
 
 	for i, input := range boardSquares {
-		testboard.SetInt(input, boardTestVals[i])
+		testboard[input.Letter][input.Number] = boardTestVals[i]
 		answer := testboard.IsHit(input)
 
 		if answer != expected[i] {
@@ -161,7 +161,7 @@ func TestIsUnsunk(t *testing.T) {
 	var expected = [5]bool{false, false, false, false, true}
 
 	for i, input := range boardSquares {
-		testboard.SetInt(input, boardTestVals[i])
+		testboard[input.Letter][input.Number] = boardTestVals[i]
 		answer := testboard.IsUnsunk(input)
 
 		if answer != expected[i] {
@@ -175,7 +175,7 @@ func TestIsSunk(t *testing.T) {
 	var expected = [5]bool{false, false, true, true, false}
 
 	for i, input := range boardSquares {
-		testboard.SetInt(input, boardTestVals[i])
+		testboard[input.Letter][input.Number] = boardTestVals[i]
 		answer := testboard.IsSunk(input)
 
 		if answer != expected[i] {
