@@ -12,7 +12,7 @@ var status = [8]string{
 	"Cruiser", "Battleship", "Carrier", "Hit",
 }
 
-// Board is a type for holding a standard 10x10 Battleship game board.
+// Board is a type for holding a standard 10x10 Battleship game board
 type Board [10][10]int
 
 // SetString sets a board value to a given string value
