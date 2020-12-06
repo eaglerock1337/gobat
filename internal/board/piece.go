@@ -2,6 +2,7 @@ package board
 
 import "errors"
 
+// I can optimize this later
 var ships = map[string]int{
 	"Carrier":    5,
 	"Battleship": 4,
@@ -9,6 +10,10 @@ var ships = map[string]int{
 	"Submarine":  3,
 	"Destroyer":  2,
 }
+
+// I can't decide if it's smart do this just to avoid computational
+// complexity, or if I am just being horribly lazy
+var shipNames = [5]string{"Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"}
 
 // Ship is a string of the ship type with extra methods
 type Ship string
@@ -40,19 +45,34 @@ func (s Ship) Length() int {
 // ShipTypes will return a slice of all 5 Ship types
 func ShipTypes() []Ship {
 	shipTypes := make([]Ship, 0, 5)
-	for ship := range ships {
+	for _, ship := range shipNames {
 		shipTypes = append(shipTypes, Ship(ship))
 	}
 	return shipTypes
 }
 
-// NewPiece defines a Piece by the following variables:
+// NewPiece defines a Piece by a ship type, a starting coordinate, and the
+// direction (horizontal or vertical), and returns a Piece and error result
 func NewPiece(shipType Ship, startSquare Square, horizontal bool) (Piece, error) {
-	// TODO: do piece on board validation here
 	var newPiece Piece
 	newPiece.Type = shipType
-	newPiece.Coords = make([]Square, shipType.Length())
-	return newPiece, nil
+	newPiece.Coords = make([]Square, 0, shipType.Length())
 
-	// return Piece{}, errors.New("Something went wrong")
+	for i := 0; i < shipType.Length(); i++ {
+		letter := startSquare.Letter
+		number := startSquare.Number
+		if horizontal {
+			letter += i
+		} else {
+			number += i
+		}
+
+		square, error := SquareByValue(letter, number)
+		if error != nil {
+			return newPiece, errors.New("Ship location is out of bounds")
+		}
+		newPiece.Coords = append(newPiece.Coords, square)
+	}
+
+	return newPiece, nil
 }

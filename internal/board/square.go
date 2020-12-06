@@ -19,16 +19,16 @@ type Square struct {
 	Number int
 }
 
-// StringByValue creates a Square by letter and number integers
-func StringByValue(let int, num int) (Square, error) {
+// SquareByValue creates a Square by letter and number integers
+func SquareByValue(let int, num int) (Square, error) {
 	if let < 0 || let > 9 || num < 0 || num > 9 {
 		return Square{}, errors.New("String coordinates out of bounds")
 	}
 	return Square{let, num}, nil
 }
 
-// StringByString creates a Square by a string of the coordinates
-func StringByString(coords string) (Square, error) {
+// SquareByString creates a Square by a string of the coordinates
+func SquareByString(coords string) (Square, error) {
 	chars := strings.Split(coords, "")
 	var letstr, numstr string
 

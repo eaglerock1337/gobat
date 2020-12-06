@@ -26,6 +26,14 @@ var badBoardInts = [5]int{-1, 8, 20, -3, 17}
 
 var boardTestVals = [5]int{0, 1, 2, 4, 7}
 
+var boardTestShips = [5]Ship{
+	Ship("Destroyer"),
+	Ship("Destroyer"),
+	Ship("Battleship"),
+	Ship("Cruiser"),
+	Ship("Submarine"),
+}
+
 func TestSetString(t *testing.T) {
 	var testboard Board
 
@@ -36,7 +44,7 @@ func TestSetString(t *testing.T) {
 		if err != nil {
 			t.Errorf("SetString returned an error: %v", err)
 		} else if answer != boardIntegers[i] {
-			t.Errorf("SetString function was incorrect, got: %v, want:%v", answer, boardIntegers[i])
+			t.Errorf("SetString function was incorrect, got: %v, want: %v", answer, boardIntegers[i])
 		}
 	}
 }
@@ -51,7 +59,7 @@ func TestSetInt(t *testing.T) {
 		if err != nil {
 			t.Errorf("SetInt returned an error: %v", err)
 		} else if answer != boardIntegers[i] {
-			t.Errorf("SetInt function was incorrect, got: %v, want:%v", answer, boardIntegers[i])
+			t.Errorf("SetInt function was incorrect, got: %v, want: %v", answer, boardIntegers[i])
 		}
 	}
 }
@@ -96,7 +104,7 @@ func TestGetString(t *testing.T) {
 		answer := testboard.GetString(input)
 
 		if answer != boardStrings[i] {
-			t.Errorf("GetString function was incorrect, got: %v, want:%v", answer, boardStrings[i])
+			t.Errorf("GetString function was incorrect, got: %v, want: %v", answer, boardStrings[i])
 		}
 	}
 }
@@ -109,7 +117,7 @@ func TestGetInt(t *testing.T) {
 		answer := testboard.GetInt(input)
 
 		if answer != boardIntegers[i] {
-			t.Errorf("GetInt function was incorrect, got: %v, want:%v", answer, boardIntegers[i])
+			t.Errorf("GetInt function was incorrect, got: %v, want: %v", answer, boardIntegers[i])
 		}
 	}
 }
@@ -123,7 +131,7 @@ func TestIsEmpty(t *testing.T) {
 		answer := testboard.IsEmpty(input)
 
 		if answer != expected[i] {
-			t.Errorf("IsEmpty function was incorrect, got: %v, want:%v", answer, expected[i])
+			t.Errorf("IsEmpty function was incorrect, got: %v, want: %v", answer, expected[i])
 		}
 	}
 }
@@ -137,7 +145,7 @@ func TestIsMiss(t *testing.T) {
 		answer := testboard.IsMiss(input)
 
 		if answer != expected[i] {
-			t.Errorf("IsMiss function was incorrect, got: %v, want:%v", answer, expected[i])
+			t.Errorf("IsMiss function was incorrect, got: %v, want: %v", answer, expected[i])
 		}
 	}
 }
@@ -151,7 +159,7 @@ func TestIsHit(t *testing.T) {
 		answer := testboard.IsHit(input)
 
 		if answer != expected[i] {
-			t.Errorf("IsHit function was incorrect, got: %v, want:%v", answer, expected[i])
+			t.Errorf("IsHit function was incorrect, got: %v, want: %v", answer, expected[i])
 		}
 	}
 }
@@ -165,7 +173,7 @@ func TestIsUnsunk(t *testing.T) {
 		answer := testboard.IsUnsunk(input)
 
 		if answer != expected[i] {
-			t.Errorf("IsUnsunk function was incorrect, got: %v, want:%v", answer, expected[i])
+			t.Errorf("IsUnsunk function was incorrect, got: %v, want: %v", answer, expected[i])
 		}
 	}
 }
@@ -179,7 +187,21 @@ func TestIsSunk(t *testing.T) {
 		answer := testboard.IsSunk(input)
 
 		if answer != expected[i] {
-			t.Errorf("IsSunk function was incorrect, got: %v, want:%v", answer, expected[i])
+			t.Errorf("IsSunk function was incorrect, got: %v, want: %v", answer, expected[i])
+		}
+	}
+}
+
+func TestIsShip(t *testing.T) {
+	var testboard Board
+	var expected = [5]bool{false, false, false, true, false}
+
+	for i, input := range boardSquares {
+		testboard[input.Letter][input.Number] = boardTestVals[i]
+		answer := testboard.IsShip(input, boardTestShips[i])
+
+		if answer != expected[i] {
+			t.Errorf("IsShip function was incorrect, got: %v, want: %v", answer, expected[i])
 		}
 	}
 }

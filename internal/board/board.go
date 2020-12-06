@@ -71,7 +71,7 @@ func (b Board) IsSunk(s Square) bool {
 	return (val > 1 && val < 7)
 }
 
-// IsPiece returns whether a square belongs to a specific piece
-// func (b Board) IsShip(s Square, p Piece) bool {
-// 	return (status[b[s.Letter][s.Number]] == p.String)
-// }
+// IsShip returns whether a square belongs to a specific ship type
+func (b Board) IsShip(s Square, sh Ship) bool {
+	return (status[b[s.Letter][s.Number]] == string(sh))
+}

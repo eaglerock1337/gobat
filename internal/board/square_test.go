@@ -33,46 +33,46 @@ var badValues = [5][2]int{
 
 var badStrings = [5]string{"Z1", "3A", "AA10", "AA1", "B11"}
 
-func TestStringByValue(t *testing.T) {
+func TestSquareByValue(t *testing.T) {
 	for i, input := range exampleValues {
-		answer, err := StringByValue(input[0], input[1])
+		answer, err := SquareByValue(input[0], input[1])
 
 		if err != nil {
-			t.Errorf("StringByValue returned an error: %v", err)
+			t.Errorf("SquareByValue returned an error: %v", err)
 		} else if answer != examples[i] {
-			t.Errorf("StringByValue function was incorrect, got: %v, want:%v", answer, examples[i])
+			t.Errorf("SquareByValue function was incorrect, got: %v, want: %v", answer, examples[i])
 		}
 	}
 }
 
-func TestBadStringByValue(t *testing.T) {
+func TestBadSquareByValue(t *testing.T) {
 	for _, input := range badValues {
-		answer, err := StringByValue(input[0], input[1])
+		answer, err := SquareByValue(input[0], input[1])
 
 		if err == nil {
-			t.Errorf("StringByValue did not error as expected with %v, returned Square: %v", input, answer)
+			t.Errorf("SquareByValue did not error as expected with %v, returned Square: %v", input, answer)
 		}
 	}
 }
 
-func TestStringByString(t *testing.T) {
+func TestSquareByString(t *testing.T) {
 	for i, input := range exampleStrings {
-		answer, err := StringByString(input)
+		answer, err := SquareByString(input)
 
 		if err != nil {
-			t.Errorf("StringByString returned an error: %v", err)
+			t.Errorf("SquareByString returned an error: %v", err)
 		} else if answer != examples[i] {
-			t.Errorf("StringByString function was incorrect, got: %v, want:%v", answer, examples[i])
+			t.Errorf("SquareByString function was incorrect, got: %v, want: %v", answer, examples[i])
 		}
 	}
 }
 
-func TestBadStringByString(t *testing.T) {
+func TestBadSquareByString(t *testing.T) {
 	for _, input := range badStrings {
-		answer, err := StringByString(input)
+		answer, err := SquareByString(input)
 
 		if err == nil {
-			t.Errorf("StringByString did not error as expected with %v, returned Square: %v", input, answer)
+			t.Errorf("SquareByString did not error as expected with %v, returned Square: %v", input, answer)
 		}
 	}
 }
@@ -83,7 +83,7 @@ func TestPrintLetter(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		answer := examples[i].PrintLetter()
 		if answer != results[i] {
-			t.Errorf("Letter function was incorrect, got: %v, want:%v", answer, results[i])
+			t.Errorf("Letter function was incorrect, got: %v, want: %v", answer, results[i])
 		}
 	}
 }
@@ -94,7 +94,7 @@ func TestPrintNumber(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		answer := examples[i].PrintNumber()
 		if answer != results[i] {
-			t.Errorf("Letter function was incorrect, got: %v, want:%v", answer, results[i])
+			t.Errorf("Letter function was incorrect, got: %v, want: %v", answer, results[i])
 		}
 	}
 }
@@ -103,7 +103,7 @@ func TestPrintSquare(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		answer := examples[i].PrintSquare()
 		if answer != strings.ToUpper(exampleStrings[i]) {
-			t.Errorf("Square function was incorrect, got: %v, want:%v", answer, exampleStrings[i])
+			t.Errorf("Square function was incorrect, got: %v, want: %v", answer, exampleStrings[i])
 		}
 	}
 }
