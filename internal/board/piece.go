@@ -76,3 +76,39 @@ func NewPiece(shipType Ship, startSquare Square, horizontal bool) (Piece, error)
 
 	return newPiece, nil
 }
+
+// InSquare is a function for determining if a Piece is in a Square
+func (p Piece) InSquare(s Square) bool {
+	for _, pieceSquare := range p.Coords {
+		if pieceSquare == s {
+			return true
+		}
+	}
+	return false
+}
+
+// InList is a function for determining if a Piece is in a slice of Squares
+// (this is O(n**2), so let's try not to use it
+func (p Piece) InList(list []Square) bool {
+	for _, pieceSquare := range p.Coords {
+		for _, square := range list {
+			if pieceSquare == square {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// InPiece is a function for determining if a Piece is in a slice of Squares
+// (this is O(n**2), so let's try not to use it)
+func (p Piece) InPiece(compare Piece) bool {
+	for _, pieceSquare := range p.Coords {
+		for _, square := range compare.Coords {
+			if pieceSquare == square {
+				return true
+			}
+		}
+	}
+	return false
+}
