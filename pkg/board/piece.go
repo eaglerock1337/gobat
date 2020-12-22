@@ -2,8 +2,8 @@ package board
 
 import "errors"
 
-// I can optimize this later
-var ships = map[string]int{
+// Ships provides the list of ships in Battleship and their lengths.
+var Ships = map[string]int{
 	"Carrier":    5,
 	"Battleship": 4,
 	"Cruiser":    3,
@@ -11,33 +11,32 @@ var ships = map[string]int{
 	"Destroyer":  2,
 }
 
-// I can't decide if it's smart do this just to avoid computational
-// complexity, or if I am just being horribly lazy
-var shipNames = [5]string{"Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"}
+// ShipNames provides the list of ships in Battleship in array form.
+var ShipNames = [5]string{"Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"}
 
-// Ship is a string of the ship type with extra methods
+// Ship is a string of the ship type with extra methods.
 type Ship string
 
-// Piece is a struct for defining a piece and its position
+// Piece is a struct for defining a piece and its position.
 type Piece struct {
 	Type   Ship
 	Coords []Square
 }
 
-// Ship creation method
+// Ship creation functions
 
-// NewShip will return a Ship type after input validation
+// NewShip will return a Ship type after input validation.
 func NewShip(shipType string) (Ship, error) {
-	if _, ok := ships[shipType]; ok {
+	if _, ok := Ships[shipType]; ok {
 		return Ship(shipType), nil
 	}
 	return Ship(""), errors.New("A valid Ship type was not given")
 }
 
-// ShipTypes will return a slice of all 5 Ship types
+// ShipTypes will return a slice of all 5 Ship types.
 func ShipTypes() []Ship {
 	shipTypes := make([]Ship, 0, 5)
-	for _, ship := range shipNames {
+	for _, ship := range ShipNames {
 		shipTypes = append(shipTypes, Ship(ship))
 	}
 	return shipTypes
@@ -45,20 +44,20 @@ func ShipTypes() []Ship {
 
 // Ship retrieval methods
 
-// Type will return the type of ship as a string
+// Type will return the type of ship as a string.
 func (s Ship) Type() string {
 	return string(s)
 }
 
-// Length will return the length of the ship as an integer
+// Length will return the length of the ship as an integer.
 func (s Ship) Length() int {
-	return ships[string(s)]
+	return Ships[string(s)]
 }
 
-// Piece creation method
+// Piece creation function
 
 // NewPiece defines a Piece by a ship type, a starting coordinate, and the
-// direction (horizontal or vertical), and returns a Piece and error result
+// direction (horizontal or vertical), and returns a Piece and error result.
 func NewPiece(shipType Ship, startSquare Square, horizontal bool) (Piece, error) {
 	var newPiece Piece
 	newPiece.Type = shipType
@@ -85,7 +84,7 @@ func NewPiece(shipType Ship, startSquare Square, horizontal bool) (Piece, error)
 
 // Piece boolean methods
 
-// InSquare is a function for determining if a Piece is in a Square
+// InSquare is a function for determining if a Piece is in a Square.
 func (p Piece) InSquare(s Square) bool {
 	for _, pieceSquare := range p.Coords {
 		if pieceSquare == s {
@@ -95,7 +94,7 @@ func (p Piece) InSquare(s Square) bool {
 	return false
 }
 
-// InList is a function for determining if a Piece is in a slice of Squares
+// InList is a function for determining if a Piece is in a slice of Squares.
 // (this is O(n**2), so let's try not to use it
 func (p Piece) InList(list []Square) bool {
 	for _, pieceSquare := range p.Coords {
@@ -108,7 +107,7 @@ func (p Piece) InList(list []Square) bool {
 	return false
 }
 
-// InPiece is a function for determining if a Piece is in a slice of Squares
+// InPiece is a function for determining if a Piece is in a slice of Squares.
 // (this is O(n**2), so let's try not to use it)
 func (p Piece) InPiece(compare Piece) bool {
 	for _, pieceSquare := range p.Coords {
