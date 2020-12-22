@@ -2,8 +2,8 @@ package board
 
 import "errors"
 
-// Ships provides the list of ships in Battleship and their lengths.
-var Ships = map[string]int{
+// ships provides the list of ships in Battleship and their lengths.
+var ships = map[string]int{
 	"Carrier":    5,
 	"Battleship": 4,
 	"Cruiser":    3,
@@ -11,8 +11,8 @@ var Ships = map[string]int{
 	"Destroyer":  2,
 }
 
-// ShipNames provides the list of ships in Battleship in array form.
-var ShipNames = [5]string{"Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"}
+// shipNames provides the list of ships in Battleship in array form.
+var shipNames = [5]string{"Carrier", "Battleship", "Cruiser", "Submarine", "Destroyer"}
 
 // Ship is a string of the ship type with extra methods.
 type Ship string
@@ -27,7 +27,7 @@ type Piece struct {
 
 // NewShip will return a Ship type after input validation.
 func NewShip(shipType string) (Ship, error) {
-	if _, ok := Ships[shipType]; ok {
+	if _, ok := ships[shipType]; ok {
 		return Ship(shipType), nil
 	}
 	return Ship(""), errors.New("A valid Ship type was not given")
@@ -36,7 +36,7 @@ func NewShip(shipType string) (Ship, error) {
 // ShipTypes will return a slice of all 5 Ship types.
 func ShipTypes() []Ship {
 	shipTypes := make([]Ship, 0, 5)
-	for _, ship := range ShipNames {
+	for _, ship := range shipNames {
 		shipTypes = append(shipTypes, Ship(ship))
 	}
 	return shipTypes
@@ -51,7 +51,7 @@ func (s Ship) GetType() string {
 
 // GetLength will return the length of the ship as an integer.
 func (s Ship) GetLength() int {
-	return Ships[string(s)]
+	return ships[string(s)]
 }
 
 // Piece creation function

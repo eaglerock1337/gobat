@@ -62,3 +62,30 @@ After a ship is sunk, the algorithm will see if any unaccounted `generic` hit sq
 ## Usage
 
 Currently, the application is still in the prelimiary development phase. However, I am adding unit tests for every module I create, so `go test` can be run inside each package to see if unit tests are passing.
+
+## Development
+
+### Documentation
+
+All parts of the project and its packages are documented by `go doc` standards to make pulling up documentation easy. Here is how to pull up the docs accordingly:
+
+`go doc board` - Pull basic documentation of the board package, the types included, and creation functions
+`go doc board -all -u` - Pull full documentation of the board package, including all member methods and internal variables
+
+### Testing
+
+Full code coverage is included by unit tests included for all packages. You can test coverage by specifying which package you would like to test like so:
+
+`go test github.com/eaglerock1337/go/battleship/pkg/board`
+
+You can also refer to the test locally (for example, this can be run from the `battleship` root directory to test `board`):
+
+`go test ./pkg/board`
+
+You can check for full code coverage by using the `cover` tool that you can install from here:
+
+`go get golang.org/x/tools/cmd/cover`
+
+Testing the `board` package with code coverage can be done like so:
+
+`go test -coverprofile boardcoverage.html github.com/eaglerock1337/go/battleship/pkg/board`

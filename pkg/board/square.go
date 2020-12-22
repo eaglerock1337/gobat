@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-// Columns allows easy converstion of a column name to its index. The
+// columns allows easy converstion of a column name to its index. The
 // opposite conversion can be done by using strconv.Atoi() instead.
-var Columns = map[string]int{
+var columns = map[string]int{
 	"A": 0, "B": 1, "C": 2, "D": 3, "E": 4,
 	"F": 5, "G": 6, "H": 7, "I": 8, "J": 9,
 }
@@ -45,7 +45,7 @@ func SquareByString(coords string) (Square, error) {
 		numstr = chars[1]
 	}
 
-	if let, found := Columns[strings.ToUpper(letstr)]; found {
+	if let, found := columns[strings.ToUpper(letstr)]; found {
 		num, err := strconv.Atoi(numstr)
 		if err != nil {
 			return Square{}, errors.New("String number could not convert to integer")

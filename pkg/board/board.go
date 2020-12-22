@@ -27,12 +27,12 @@ import "errors"
 // the status string and vice-versa. This allows for statuses to be stored
 // as integers for faster lookup and comparison.
 var (
-	Values = map[string]int{
+	values = map[string]int{
 		"Empty": 0, "Miss": 1, "Destroyer": 2, "Submarine": 3,
 		"Cruiser": 4, "Battleship": 5, "Carrier": 6, "Hit": 7,
 	}
 
-	Status = [8]string{
+	status = [8]string{
 		"Empty", "Miss", "Destroyer", "Submarine",
 		"Cruiser", "Battleship", "Carrier", "Hit",
 	}
@@ -45,7 +45,7 @@ type Board [10][10]int
 
 // SetString sets a board value to a given string value.
 func (b *Board) SetString(s Square, value string) error {
-	if val, ok := Values[value]; ok {
+	if val, ok := values[value]; ok {
 		b[s.Letter][s.Number] = val
 		return nil
 	}
@@ -63,7 +63,7 @@ func (b *Board) SetInt(s Square, value int) error {
 
 // SetPiece sets board values from a given piece's ship type and coordinates.
 func (b *Board) SetPiece(p Piece) {
-	value := Values[p.Type.GetType()]
+	value := values[p.Type.GetType()]
 	for _, square := range p.Coords {
 		b.SetInt(square, value)
 	}
@@ -86,7 +86,7 @@ func (b *Board) PlacePiece(p Piece) error {
 
 // GetString returns a given Square's string value.
 func (b Board) GetString(s Square) string {
-	return Status[b[s.Letter][s.Number]]
+	return status[b[s.Letter][s.Number]]
 }
 
 // GetInt returns a given Square's integer value.
@@ -124,5 +124,5 @@ func (b Board) IsSunk(s Square) bool {
 
 // IsShip returns whether a square belongs to a specific ship type.
 func (b Board) IsShip(s Square, sh Ship) bool {
-	return (Status[b[s.Letter][s.Number]] == string(sh))
+	return (status[b[s.Letter][s.Number]] == string(sh))
 }
