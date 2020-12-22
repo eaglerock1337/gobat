@@ -95,9 +95,9 @@ func TestShipTypes(t *testing.T) {
 	}
 }
 
-func TestShipType(t *testing.T) {
+func TestShipGetType(t *testing.T) {
 	for i, input := range exampleShips {
-		answer := input.Type()
+		answer := input.GetType()
 
 		if answer != exampleTypes[i] {
 			t.Errorf("Type was incorrect, got: %v, want: %v", answer, exampleStrings[i])
@@ -105,9 +105,9 @@ func TestShipType(t *testing.T) {
 	}
 }
 
-func TestShipLength(t *testing.T) {
+func TestShipGetLength(t *testing.T) {
 	for i, input := range exampleShips {
-		answer := input.Length()
+		answer := input.GetLength()
 
 		if answer != exampleSizes[i] {
 			t.Errorf("Length was incorrect, got %v, want: %v", answer, exampleSizes[i])

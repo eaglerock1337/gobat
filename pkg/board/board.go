@@ -61,6 +61,27 @@ func (b *Board) SetInt(s Square, value int) error {
 	return errors.New("Given value out of range")
 }
 
+// SetPiece sets board values from a given piece's ship type and coordinates.
+func (b *Board) SetPiece(p Piece) {
+	value := Values[p.Type.GetType()]
+	for _, square := range p.Coords {
+		b.SetInt(square, value)
+	}
+}
+
+// PlacePiece sets board values from a given piece's ship type, but only if the
+// squares are all empty. Useful when using Board for a player's ship placement,
+// as opposed to tracking hits and misses.
+func (b *Board) PlacePiece(p Piece) error {
+	for _, square := range p.Coords {
+		if !b.IsEmpty(square) {
+			return errors.New("Piece coordinates are not empty")
+		}
+	}
+	b.SetPiece(p)
+	return nil
+}
+
 // Board retrieval methods
 
 // GetString returns a given Square's string value.

@@ -34,6 +34,24 @@ var boardTestShips = [5]Ship{
 	Ship("Submarine"),
 }
 
+var boardTestPieces = [5]Piece{
+	{Ship("Carrier"), []Square{{0, 7}, {1, 7}, {2, 7}, {3, 7}, {4, 7}}},
+	{Ship("Battleship"), []Square{{7, 2}, {7, 3}, {7, 4}, {7, 5}}},
+	{Ship("Cruiser"), []Square{{5, 8}, {6, 8}, {7, 8}}},
+	{Ship("Submarine"), []Square{{9, 6}, {9, 7}, {9, 8}}},
+	{Ship("Destroyer"), []Square{{6, 9}, {7, 9}}},
+}
+
+var boardPieceValues = [5]int{6, 5, 4, 3, 2}
+
+var boardPieceSquares = [5]Square{
+	{0, 7},
+	{7, 2},
+	{5, 8},
+	{9, 6},
+	{6, 9},
+}
+
 func TestSetString(t *testing.T) {
 	var testboard Board
 
@@ -45,21 +63,6 @@ func TestSetString(t *testing.T) {
 			t.Errorf("SetString returned an error: %v", err)
 		} else if answer != boardIntegers[i] {
 			t.Errorf("SetString function was incorrect, got: %v, want: %v", answer, boardIntegers[i])
-		}
-	}
-}
-
-func TestSetInt(t *testing.T) {
-	var testboard Board
-
-	for i, input := range boardSquares {
-		err := testboard.SetInt(input, boardIntegers[i])
-		answer := testboard[input.Letter][input.Number]
-
-		if err != nil {
-			t.Errorf("SetInt returned an error: %v", err)
-		} else if answer != boardIntegers[i] {
-			t.Errorf("SetInt function was incorrect, got: %v, want: %v", answer, boardIntegers[i])
 		}
 	}
 }
@@ -80,6 +83,21 @@ func TestBadSetString(t *testing.T) {
 	}
 }
 
+func TestSetInt(t *testing.T) {
+	var testboard Board
+
+	for i, input := range boardSquares {
+		err := testboard.SetInt(input, boardIntegers[i])
+		answer := testboard[input.Letter][input.Number]
+
+		if err != nil {
+			t.Errorf("SetInt returned an error: %v", err)
+		} else if answer != boardIntegers[i] {
+			t.Errorf("SetInt function was incorrect, got: %v, want: %v", answer, boardIntegers[i])
+		}
+	}
+}
+
 func TestBadSetInt(t *testing.T) {
 	var testboard Board
 
@@ -91,6 +109,52 @@ func TestBadSetInt(t *testing.T) {
 				"SetInt did not error as expected with %v, set value: %v",
 				badBoardInts[i],
 				testboard[input.Letter][input.Number],
+			)
+		}
+	}
+}
+
+func TestSetPiece(t *testing.T) {
+	var testboard Board
+
+	for i, input := range boardTestPieces {
+		testboard.SetPiece(input)
+		testvalue := testboard[input.Coords[0].Letter][input.Coords[0].Number]
+		if testvalue != boardPieceValues[i] {
+			t.Errorf("SetPiece function was incorrect, got: %v, want: %v", testvalue, boardPieceValues[i])
+		}
+	}
+}
+
+func TestPlacePiece(t *testing.T) {
+	var testboard Board
+
+	for i, input := range boardTestPieces {
+		err := testboard.PlacePiece(input)
+		testvalue := testboard[input.Coords[0].Letter][input.Coords[0].Number]
+
+		if err != nil {
+			t.Errorf("SetInt returned an error: %v", err)
+		} else if testvalue != boardPieceValues[i] {
+			t.Errorf("PlacePiece function was incorrect, got: %v, want: %v", testvalue, boardPieceValues[i])
+		}
+	}
+}
+
+func TestBadPlacePiece(t *testing.T) {
+	var testboard Board
+
+	for _, square := range boardPieceSquares {
+		testboard[square.Letter][square.Number] = 7
+	}
+
+	for _, input := range boardTestPieces {
+		err := testboard.PlacePiece(input)
+		if err == nil {
+			t.Errorf(
+				"PlacePiece did not error as expected with %v, set first square: %v",
+				input,
+				testboard[input.Coords[0].Letter][input.Coords[0].Number],
 			)
 		}
 	}

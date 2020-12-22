@@ -44,13 +44,13 @@ func ShipTypes() []Ship {
 
 // Ship retrieval methods
 
-// Type will return the type of ship as a string.
-func (s Ship) Type() string {
+// GetType will return the type of ship as a string.
+func (s Ship) GetType() string {
 	return string(s)
 }
 
-// Length will return the length of the ship as an integer.
-func (s Ship) Length() int {
+// GetLength will return the length of the ship as an integer.
+func (s Ship) GetLength() int {
 	return Ships[string(s)]
 }
 
@@ -61,9 +61,9 @@ func (s Ship) Length() int {
 func NewPiece(shipType Ship, startSquare Square, horizontal bool) (Piece, error) {
 	var newPiece Piece
 	newPiece.Type = shipType
-	newPiece.Coords = make([]Square, 0, shipType.Length())
+	newPiece.Coords = make([]Square, 0, shipType.GetLength())
 
-	for i := 0; i < shipType.Length(); i++ {
+	for i := 0; i < shipType.GetLength(); i++ {
 		letter := startSquare.Letter
 		number := startSquare.Number
 		if horizontal {
