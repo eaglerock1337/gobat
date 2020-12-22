@@ -88,4 +88,4 @@ You can check for full code coverage by using the `cover` tool that you can inst
 
 Testing the `board` package with code coverage can be done like so:
 
-`go test -coverprofile boardcoverage.html github.com/eaglerock1337/go/battleship/pkg/board`
+`go test -cover github.com/eaglerock1337/go/battleship/pkg/board`
