@@ -1,3 +1,20 @@
+/*
+Package board implements structs and custom types that can be used for representing
+and handling a Battleship board and its pieces. All custom types have built-in
+error handling and member functions for referencing the data in multiple ways.
+
+The structs and types are as follows:
+
+board.Square - a struct that contains a single coordinate on a Battleship board
+board.Ship   - a custom string that represents a type of ship in Battleship
+board.Piece  - a struct that contains a ship's type and coordinates on the board
+board.Board  - a 10x10 Battleship board with standard letter-number referencing
+
+With the exception of board.Board (which returns a zeroed array of integers),
+each type/struct has one or more functions for creation with validation and with
+error reporting to make input validation easy. All member functions that update
+data will also report error statuses for the same reason.
+*/
 package board
 
 import "errors"
@@ -17,6 +34,8 @@ var status = [8]string{
 // Board is a type for holding a standard 10x10 Battleship game board
 type Board [10][10]int
 
+// Board update methods
+
 // SetString sets a board value to a given string value
 func (b *Board) SetString(s Square, value string) error {
 	if val, ok := values[value]; ok {
@@ -35,6 +54,8 @@ func (b *Board) SetInt(s Square, value int) error {
 	return errors.New("Given value out of range")
 }
 
+// Board retrieval methods
+
 // GetString returns a given Square's string value
 func (b Board) GetString(s Square) string {
 	return status[b[s.Letter][s.Number]]
@@ -44,6 +65,8 @@ func (b Board) GetString(s Square) string {
 func (b Board) GetInt(s Square) int {
 	return b[s.Letter][s.Number]
 }
+
+// Board boolean methods
 
 // IsEmpty returns whether a given Square is empty
 func (b Board) IsEmpty(s Square) bool {

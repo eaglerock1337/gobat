@@ -19,6 +19,8 @@ type Square struct {
 	Number int
 }
 
+// Square creation methods
+
 // SquareByValue creates a Square by letter and number integers
 func SquareByValue(let int, num int) (Square, error) {
 	if let < 0 || let > 9 || num < 0 || num > 9 {
@@ -55,6 +57,8 @@ func SquareByString(coords string) (Square, error) {
 
 	return Square{}, errors.New("String letter coordinate not found")
 }
+
+// Square retrieval methods
 
 // PrintLetter returns the column (letter) as a string
 func (s Square) PrintLetter() string {

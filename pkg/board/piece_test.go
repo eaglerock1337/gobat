@@ -86,6 +86,15 @@ func TestBadNewShip(t *testing.T) {
 	}
 }
 
+func TestShipTypes(t *testing.T) {
+	answer := ShipTypes()
+	for i, input := range answer {
+		if input != exampleShips[i] {
+			t.Errorf("ShipType was incorrect, got: %v, want: %v", input, exampleShips[i])
+		}
+	}
+}
+
 func TestShipType(t *testing.T) {
 	for i, input := range exampleShips {
 		answer := input.Type()
@@ -102,15 +111,6 @@ func TestShipLength(t *testing.T) {
 
 		if answer != exampleSizes[i] {
 			t.Errorf("Length was incorrect, got %v, want: %v", answer, exampleSizes[i])
-		}
-	}
-}
-
-func TestShipTypes(t *testing.T) {
-	answer := ShipTypes()
-	for i, input := range answer {
-		if input != exampleShips[i] {
-			t.Errorf("ShipType was incorrect, got: %v, want: %v", input, exampleShips[i])
 		}
 	}
 }

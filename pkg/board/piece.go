@@ -24,6 +24,8 @@ type Piece struct {
 	Coords []Square
 }
 
+// Ship creation method
+
 // NewShip will return a Ship type after input validation
 func NewShip(shipType string) (Ship, error) {
 	if _, ok := ships[shipType]; ok {
@@ -31,6 +33,17 @@ func NewShip(shipType string) (Ship, error) {
 	}
 	return Ship(""), errors.New("A valid Ship type was not given")
 }
+
+// ShipTypes will return a slice of all 5 Ship types
+func ShipTypes() []Ship {
+	shipTypes := make([]Ship, 0, 5)
+	for _, ship := range shipNames {
+		shipTypes = append(shipTypes, Ship(ship))
+	}
+	return shipTypes
+}
+
+// Ship retrieval methods
 
 // Type will return the type of ship as a string
 func (s Ship) Type() string {
@@ -42,14 +55,7 @@ func (s Ship) Length() int {
 	return ships[string(s)]
 }
 
-// ShipTypes will return a slice of all 5 Ship types
-func ShipTypes() []Ship {
-	shipTypes := make([]Ship, 0, 5)
-	for _, ship := range shipNames {
-		shipTypes = append(shipTypes, Ship(ship))
-	}
-	return shipTypes
-}
+// Piece creation method
 
 // NewPiece defines a Piece by a ship type, a starting coordinate, and the
 // direction (horizontal or vertical), and returns a Piece and error result
@@ -76,6 +82,8 @@ func NewPiece(shipType Ship, startSquare Square, horizontal bool) (Piece, error)
 
 	return newPiece, nil
 }
+
+// Piece boolean methods
 
 // InSquare is a function for determining if a Piece is in a Square
 func (p Piece) InSquare(s Square) bool {
