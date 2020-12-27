@@ -16,42 +16,6 @@ var boardStrings = [5]string{
 	"Miss", "Destroyer", "Battleship", "Carrier", "Hit",
 }
 
-var boardIntegers = [5]int{1, 2, 5, 6, 7}
-
-var badBoardStrs = [5]string{
-	"Mister", "destroyer", "Your mom", "Poop", "Mah boat",
-}
-
-var badBoardInts = [5]int{-1, 8, 20, -3, 17}
-
-var boardTestVals = [5]int{0, 1, 2, 4, 7}
-
-var boardTestShips = [5]Ship{
-	Ship("Destroyer"),
-	Ship("Destroyer"),
-	Ship("Battleship"),
-	Ship("Cruiser"),
-	Ship("Submarine"),
-}
-
-var boardTestPieces = [5]Piece{
-	{Ship("Carrier"), []Square{{0, 7}, {1, 7}, {2, 7}, {3, 7}, {4, 7}}},
-	{Ship("Battleship"), []Square{{7, 2}, {7, 3}, {7, 4}, {7, 5}}},
-	{Ship("Cruiser"), []Square{{5, 8}, {6, 8}, {7, 8}}},
-	{Ship("Submarine"), []Square{{9, 6}, {9, 7}, {9, 8}}},
-	{Ship("Destroyer"), []Square{{6, 9}, {7, 9}}},
-}
-
-var boardPieceValues = [5]int{6, 5, 4, 3, 2}
-
-var boardPieceSquares = [5]Square{
-	{0, 7},
-	{7, 2},
-	{5, 8},
-	{9, 6},
-	{6, 9},
-}
-
 func TestSetString(t *testing.T) {
 	var testboard Board
 
@@ -65,6 +29,10 @@ func TestSetString(t *testing.T) {
 			t.Errorf("SetString function was incorrect, got: %v, want: %v", answer, boardIntegers[i])
 		}
 	}
+}
+
+var badBoardStrs = [5]string{
+	"Mister", "destroyer", "Your mom", "Poop", "Mah boat",
 }
 
 func TestBadSetString(t *testing.T) {
@@ -83,6 +51,8 @@ func TestBadSetString(t *testing.T) {
 	}
 }
 
+var boardIntegers = [5]int{1, 2, 5, 6, 7}
+
 func TestSetInt(t *testing.T) {
 	var testboard Board
 
@@ -97,6 +67,8 @@ func TestSetInt(t *testing.T) {
 		}
 	}
 }
+
+var badBoardInts = [5]int{-1, 8, 20, -3, 17}
 
 func TestBadSetInt(t *testing.T) {
 	var testboard Board
@@ -114,14 +86,24 @@ func TestBadSetInt(t *testing.T) {
 	}
 }
 
+var boardTestPieces = [5]Piece{
+	{Ship("Carrier"), []Square{{0, 7}, {1, 7}, {2, 7}, {3, 7}, {4, 7}}},
+	{Ship("Battleship"), []Square{{7, 2}, {7, 3}, {7, 4}, {7, 5}}},
+	{Ship("Cruiser"), []Square{{5, 8}, {6, 8}, {7, 8}}},
+	{Ship("Submarine"), []Square{{9, 6}, {9, 7}, {9, 8}}},
+	{Ship("Destroyer"), []Square{{6, 9}, {7, 9}}},
+}
+
+var boardPieceValues = [5]int{6, 5, 4, 3, 2}
+
 func TestSetPiece(t *testing.T) {
 	var testboard Board
 
 	for i, input := range boardTestPieces {
 		testboard.SetPiece(input)
-		testvalue := testboard[input.Coords[0].Letter][input.Coords[0].Number]
-		if testvalue != boardPieceValues[i] {
-			t.Errorf("SetPiece function was incorrect, got: %v, want: %v", testvalue, boardPieceValues[i])
+		testValue := testboard[input.Coords[0].Letter][input.Coords[0].Number]
+		if testValue != boardPieceValues[i] {
+			t.Errorf("SetPiece function was incorrect, got: %v, want: %v", testValue, boardPieceValues[i])
 		}
 	}
 }
@@ -139,6 +121,14 @@ func TestPlacePiece(t *testing.T) {
 			t.Errorf("PlacePiece function was incorrect, got: %v, want: %v", testvalue, boardPieceValues[i])
 		}
 	}
+}
+
+var boardPieceSquares = [5]Square{
+	{0, 7},
+	{7, 2},
+	{5, 8},
+	{9, 6},
+	{6, 9},
 }
 
 func TestBadPlacePiece(t *testing.T) {
@@ -185,6 +175,8 @@ func TestGetInt(t *testing.T) {
 		}
 	}
 }
+
+var boardTestVals = [5]int{0, 1, 2, 4, 7}
 
 func TestIsEmpty(t *testing.T) {
 	var testboard Board
@@ -254,6 +246,14 @@ func TestIsSunk(t *testing.T) {
 			t.Errorf("IsSunk function was incorrect, got: %v, want: %v", answer, expected[i])
 		}
 	}
+}
+
+var boardTestShips = [5]Ship{
+	Ship("Destroyer"),
+	Ship("Destroyer"),
+	Ship("Battleship"),
+	Ship("Cruiser"),
+	Ship("Submarine"),
 }
 
 func TestIsShip(t *testing.T) {

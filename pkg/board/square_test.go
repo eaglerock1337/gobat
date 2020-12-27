@@ -5,16 +5,6 @@ import (
 	"testing"
 )
 
-var exampleValues = [5][2]int{
-	{0, 0},
-	{2, 2},
-	{5, 2},
-	{9, 6},
-	{6, 9},
-}
-
-var exampleStrings = [5]string{"A1", "c3", "F3", "J7", "g10"}
-
 var examples = [5]Square{
 	{0, 0},
 	{2, 2},
@@ -23,15 +13,13 @@ var examples = [5]Square{
 	{6, 9},
 }
 
-var badValues = [5][2]int{
-	{-1, 0},
-	{0, 10},
-	{11, 5},
-	{-1, -1},
-	{12, -12},
+var exampleValues = [5][2]int{
+	{0, 0},
+	{2, 2},
+	{5, 2},
+	{9, 6},
+	{6, 9},
 }
-
-var badStrings = [5]string{"Z1", "3A", "AA10", "AA1", "B11"}
 
 func TestSquareByValue(t *testing.T) {
 	for i, input := range exampleValues {
@@ -45,6 +33,14 @@ func TestSquareByValue(t *testing.T) {
 	}
 }
 
+var badValues = [5][2]int{
+	{-1, 0},
+	{0, 10},
+	{11, 5},
+	{-1, -1},
+	{12, -12},
+}
+
 func TestBadSquareByValue(t *testing.T) {
 	for _, input := range badValues {
 		answer, err := SquareByValue(input[0], input[1])
@@ -54,6 +50,8 @@ func TestBadSquareByValue(t *testing.T) {
 		}
 	}
 }
+
+var exampleStrings = [5]string{"A1", "c3", "F3", "J7", "g10"}
 
 func TestSquareByString(t *testing.T) {
 	for i, input := range exampleStrings {
@@ -66,6 +64,8 @@ func TestSquareByString(t *testing.T) {
 		}
 	}
 }
+
+var badStrings = [5]string{"Z1", "3A", "AA10", "AA1", "B11"}
 
 func TestBadSquareByString(t *testing.T) {
 	for _, input := range badStrings {

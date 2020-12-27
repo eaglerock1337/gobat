@@ -20,50 +20,6 @@ var exampleShips = [5]Ship{
 	Ship("Destroyer"),
 }
 
-var exampleSizes = [5]int{5, 4, 3, 3, 2}
-
-var badShips = [5]string{
-	"Your Mom",
-	"destroyer",
-	"BATTLESHIP",
-	"SuBmArInE",
-	"I'm on a boat",
-}
-
-var pieceSquares = [5]Square{
-	{0, 7},
-	{7, 2},
-	{5, 8},
-	{9, 6},
-	{6, 9},
-}
-
-var examplePieces = [5]Piece{
-	{Ship("Carrier"), []Square{{0, 7}, {1, 7}, {2, 7}, {3, 7}, {4, 7}}},
-	{Ship("Battleship"), []Square{{7, 2}, {7, 3}, {7, 4}, {7, 5}}},
-	{Ship("Cruiser"), []Square{{5, 8}, {6, 8}, {7, 8}}},
-	{Ship("Submarine"), []Square{{9, 6}, {9, 7}, {9, 8}}},
-	{Ship("Destroyer"), []Square{{6, 9}, {7, 9}}},
-}
-
-var testSquares = [5]Square{{2, 7}, {3, 3}, {7, 8}, {9, 5}, {6, 9}}
-
-var testLists = [5][]Square{
-	{{0, 7}, {3, 3}, {4, 5}},
-	{{3, 4}, {2, 9}, {8, 0}, {1, 3}, {4, 4}},
-	{{4, 3}, {4, 4}, {4, 4}, {5, 1}, {6, 2}},
-	{{0, 4}, {6, 6}, {7, 8}, {9, 5}, {9, 6}, {8, 9}},
-	{{5, 9}, {6, 8}, {7, 8}, {8, 8}, {9, 8}, {7, 7}},
-}
-
-var testPieces = [5]Piece{
-	{Ship("Destroyer"), []Square{{2, 7}, {2, 8}}},
-	{Ship("Submarine"), []Square{{0, 6}, {1, 6}, {2, 6}}},
-	{Ship("Cruiser"), []Square{{2, 2}, {3, 2}, {4, 2}}},
-	{Ship("Destroyer"), []Square{{8, 7}, {9, 7}}},
-	{Ship("Destroyer"), []Square{{5, 9}, {6, 9}}},
-}
-
 func TestNewShip(t *testing.T) {
 	for i, input := range exampleTypes {
 		answer, err := NewShip(input)
@@ -74,6 +30,14 @@ func TestNewShip(t *testing.T) {
 			t.Errorf("NewShip function was incorrect, got: %v, want: %v", answer, exampleShips[i])
 		}
 	}
+}
+
+var badShips = [5]string{
+	"Your Mom",
+	"destroyer",
+	"BATTLESHIP",
+	"SuBmArInE",
+	"I'm on a boat",
 }
 
 func TestBadNewShip(t *testing.T) {
@@ -105,6 +69,8 @@ func TestShipGetType(t *testing.T) {
 	}
 }
 
+var exampleSizes = [5]int{5, 4, 3, 3, 2}
+
 func TestShipGetLength(t *testing.T) {
 	for i, input := range exampleShips {
 		answer := input.GetLength()
@@ -113,6 +79,22 @@ func TestShipGetLength(t *testing.T) {
 			t.Errorf("Length was incorrect, got %v, want: %v", answer, exampleSizes[i])
 		}
 	}
+}
+
+var pieceSquares = [5]Square{
+	{0, 7},
+	{7, 2},
+	{5, 8},
+	{9, 6},
+	{6, 9},
+}
+
+var examplePieces = [5]Piece{
+	{Ship("Carrier"), []Square{{0, 7}, {1, 7}, {2, 7}, {3, 7}, {4, 7}}},
+	{Ship("Battleship"), []Square{{7, 2}, {7, 3}, {7, 4}, {7, 5}}},
+	{Ship("Cruiser"), []Square{{5, 8}, {6, 8}, {7, 8}}},
+	{Ship("Submarine"), []Square{{9, 6}, {9, 7}, {9, 8}}},
+	{Ship("Destroyer"), []Square{{6, 9}, {7, 9}}},
 }
 
 func TestNewPiece(t *testing.T) {
@@ -148,6 +130,8 @@ func TestBadNewPiece(t *testing.T) {
 	}
 }
 
+var testSquares = [5]Square{{2, 7}, {3, 3}, {7, 8}, {9, 5}, {6, 9}}
+
 func TestInSquare(t *testing.T) {
 	expected := [5]bool{true, false, true, false, true}
 
@@ -160,6 +144,14 @@ func TestInSquare(t *testing.T) {
 	}
 }
 
+var testLists = [5][]Square{
+	{{0, 7}, {3, 3}, {4, 5}},
+	{{3, 4}, {2, 9}, {8, 0}, {1, 3}, {4, 4}},
+	{{4, 3}, {4, 4}, {4, 4}, {5, 1}, {6, 2}},
+	{{0, 4}, {6, 6}, {7, 8}, {9, 5}, {9, 6}, {8, 9}},
+	{{5, 9}, {6, 8}, {7, 8}, {8, 8}, {9, 8}, {7, 7}},
+}
+
 func TestInList(t *testing.T) {
 	expected := [5]bool{true, false, false, true, false}
 
@@ -170,6 +162,14 @@ func TestInList(t *testing.T) {
 			t.Errorf("InList was incorrect with: %v, want: %v", input, expected[i])
 		}
 	}
+}
+
+var testPieces = [5]Piece{
+	{Ship("Destroyer"), []Square{{2, 7}, {2, 8}}},
+	{Ship("Submarine"), []Square{{0, 6}, {1, 6}, {2, 6}}},
+	{Ship("Cruiser"), []Square{{2, 2}, {3, 2}, {4, 2}}},
+	{Ship("Destroyer"), []Square{{8, 7}, {9, 7}}},
+	{Ship("Destroyer"), []Square{{5, 9}, {6, 9}}},
 }
 
 func TestInPiece(t *testing.T) {
