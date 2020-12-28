@@ -16,41 +16,79 @@ var exampleShips = [5]board.Ship{
 
 var expectedLengths = [5]int{120, 140, 160, 160, 180}
 
+var expectedSquares = [5][5][]board.Square{
+	{
+		{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}, {Letter: 4, Number: 0}},
+		{{Letter: 0, Number: 0}, {Letter: 0, Number: 1}, {Letter: 0, Number: 2}, {Letter: 0, Number: 3}, {Letter: 0, Number: 4}},
+		{{Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}, {Letter: 4, Number: 0}, {Letter: 5, Number: 0}},
+		{{Letter: 0, Number: 1}, {Letter: 0, Number: 2}, {Letter: 0, Number: 3}, {Letter: 0, Number: 4}, {Letter: 0, Number: 5}},
+		{{Letter: 2, Number: 0}, {Letter: 3, Number: 0}, {Letter: 4, Number: 0}, {Letter: 5, Number: 0}, {Letter: 6, Number: 0}},
+	},
+	{
+		{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}},
+		{{Letter: 0, Number: 0}, {Letter: 0, Number: 1}, {Letter: 0, Number: 2}, {Letter: 0, Number: 3}},
+		{{Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}, {Letter: 4, Number: 0}},
+		{{Letter: 0, Number: 1}, {Letter: 0, Number: 2}, {Letter: 0, Number: 3}, {Letter: 0, Number: 4}},
+		{{Letter: 2, Number: 0}, {Letter: 3, Number: 0}, {Letter: 4, Number: 0}, {Letter: 5, Number: 0}},
+	},
+	{
+		{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}},
+		{{Letter: 0, Number: 0}, {Letter: 0, Number: 1}, {Letter: 0, Number: 2}},
+		{{Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}},
+		{{Letter: 0, Number: 1}, {Letter: 0, Number: 2}, {Letter: 0, Number: 3}},
+		{{Letter: 2, Number: 0}, {Letter: 3, Number: 0}, {Letter: 4, Number: 0}},
+	},
+	{
+		{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}},
+		{{Letter: 0, Number: 0}, {Letter: 0, Number: 1}, {Letter: 0, Number: 2}},
+		{{Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}},
+		{{Letter: 0, Number: 1}, {Letter: 0, Number: 2}, {Letter: 0, Number: 3}},
+		{{Letter: 2, Number: 0}, {Letter: 3, Number: 0}, {Letter: 4, Number: 0}},
+	},
+	{
+		{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}},
+		{{Letter: 0, Number: 0}, {Letter: 0, Number: 1}},
+		{{Letter: 1, Number: 0}, {Letter: 2, Number: 0}},
+		{{Letter: 0, Number: 1}, {Letter: 0, Number: 2}},
+		{{Letter: 2, Number: 0}, {Letter: 3, Number: 0}},
+	},
+}
+
 var expectedValues = [5][5]board.Piece{
 	{
-		{board.Ship("Carrier"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}}},
-		{board.Ship("Carrier"), []board.Square{{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}},
-		{board.Ship("Carrier"), []board.Square{{1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}}},
-		{board.Ship("Carrier"), []board.Square{{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}}},
-		{board.Ship("Carrier"), []board.Square{{2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}}},
+		{Type: exampleShips[0], Coords: expectedSquares[0][0]},
+		{Type: exampleShips[0], Coords: expectedSquares[0][1]},
+		{Type: exampleShips[0], Coords: expectedSquares[0][2]},
+		{Type: exampleShips[0], Coords: expectedSquares[0][3]},
+		{Type: exampleShips[0], Coords: expectedSquares[0][4]},
 	},
 	{
-		{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
-		{board.Ship("Battleship"), []board.Square{{0, 0}, {0, 1}, {0, 2}, {0, 3}}},
-		{board.Ship("Battleship"), []board.Square{{1, 0}, {2, 0}, {3, 0}, {4, 0}}},
-		{board.Ship("Battleship"), []board.Square{{0, 1}, {0, 2}, {0, 3}, {0, 4}}},
-		{board.Ship("Battleship"), []board.Square{{2, 0}, {3, 0}, {4, 0}, {5, 0}}},
+		{Type: exampleShips[1], Coords: expectedSquares[1][0]},
+		{Type: exampleShips[1], Coords: expectedSquares[1][1]},
+		{Type: exampleShips[1], Coords: expectedSquares[1][2]},
+		{Type: exampleShips[1], Coords: expectedSquares[1][3]},
+		{Type: exampleShips[1], Coords: expectedSquares[1][4]},
 	},
 	{
-		{board.Ship("Cruiser"), []board.Square{{0, 0}, {1, 0}, {2, 0}}},
-		{board.Ship("Cruiser"), []board.Square{{0, 0}, {0, 1}, {0, 2}}},
-		{board.Ship("Cruiser"), []board.Square{{1, 0}, {2, 0}, {3, 0}}},
-		{board.Ship("Cruiser"), []board.Square{{0, 1}, {0, 2}, {0, 3}}},
-		{board.Ship("Cruiser"), []board.Square{{2, 0}, {3, 0}, {4, 0}}},
+		{Type: exampleShips[2], Coords: expectedSquares[2][0]},
+		{Type: exampleShips[2], Coords: expectedSquares[2][1]},
+		{Type: exampleShips[2], Coords: expectedSquares[2][2]},
+		{Type: exampleShips[2], Coords: expectedSquares[2][3]},
+		{Type: exampleShips[2], Coords: expectedSquares[2][4]},
 	},
 	{
-		{board.Ship("Submarine"), []board.Square{{0, 0}, {1, 0}, {2, 0}}},
-		{board.Ship("Submarine"), []board.Square{{0, 0}, {0, 1}, {0, 2}}},
-		{board.Ship("Submarine"), []board.Square{{1, 0}, {2, 0}, {3, 0}}},
-		{board.Ship("Submarine"), []board.Square{{0, 1}, {0, 2}, {0, 3}}},
-		{board.Ship("Submarine"), []board.Square{{2, 0}, {3, 0}, {4, 0}}},
+		{Type: exampleShips[3], Coords: expectedSquares[3][0]},
+		{Type: exampleShips[3], Coords: expectedSquares[3][1]},
+		{Type: exampleShips[3], Coords: expectedSquares[3][2]},
+		{Type: exampleShips[3], Coords: expectedSquares[3][3]},
+		{Type: exampleShips[3], Coords: expectedSquares[3][4]},
 	},
 	{
-		{board.Ship("Destroyer"), []board.Square{{0, 0}, {1, 0}}},
-		{board.Ship("Destroyer"), []board.Square{{0, 0}, {0, 1}}},
-		{board.Ship("Destroyer"), []board.Square{{1, 0}, {2, 0}}},
-		{board.Ship("Destroyer"), []board.Square{{0, 1}, {0, 2}}},
-		{board.Ship("Destroyer"), []board.Square{{2, 0}, {3, 0}}},
+		{Type: exampleShips[4], Coords: expectedSquares[4][0]},
+		{Type: exampleShips[4], Coords: expectedSquares[4][1]},
+		{Type: exampleShips[4], Coords: expectedSquares[4][2]},
+		{Type: exampleShips[4], Coords: expectedSquares[4][3]},
+		{Type: exampleShips[4], Coords: expectedSquares[4][4]},
 	},
 }
 
@@ -76,15 +114,43 @@ func TestGenPieceData(t *testing.T) {
 	}
 }
 
-var examplePieceData = PieceData[]{
-	board.Piece{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{1, 0}, {2, 0}, {3, 0}, {4, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{1, 1}, {2, 1}, {3, 1}, {4, 1}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{6, 0}, {1, 0}, {2, 0}, {3, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
-	board.Piece{board.Ship("Battleship"), []board.Square{{0, 0}, {1, 0}, {2, 0}, {3, 0}}},
+var examplePieceData = PieceData{
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 0}, {Letter: 4, Number: 0}, {Letter: 5, Number: 0}, {Letter: 6, Number: 0}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 2}, {Letter: 4, Number: 2}, {Letter: 5, Number: 2}, {Letter: 6, Number: 2}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 0}, {Letter: 7, Number: 0}, {Letter: 8, Number: 0}, {Letter: 9, Number: 0}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 2}, {Letter: 7, Number: 2}, {Letter: 8, Number: 2}, {Letter: 9, Number: 2}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 4, Number: 5}, {Letter: 5, Number: 5}, {Letter: 6, Number: 5}, {Letter: 7, Number: 5}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 7, Number: 3}, {Letter: 7, Number: 4}, {Letter: 7, Number: 5}, {Letter: 7, Number: 6}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 9, Number: 5}, {Letter: 9, Number: 6}, {Letter: 9, Number: 7}, {Letter: 9, Number: 8}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 1}, {Letter: 5, Number: 2}, {Letter: 5, Number: 3}, {Letter: 5, Number: 4}}},
+	{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 3}, {Letter: 5, Number: 4}, {Letter: 5, Number: 5}, {Letter: 5, Number: 6}}},
+}
+
+func TestRemove(t *testing.T) {
+	placesToRemove := [5]int{2, 4, 5, 1, 2}
+	answer := PieceData{
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 7, Number: 3}, {Letter: 7, Number: 4}, {Letter: 7, Number: 5}, {Letter: 7, Number: 6}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 9, Number: 5}, {Letter: 9, Number: 6}, {Letter: 9, Number: 7}, {Letter: 9, Number: 8}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 0}, {Letter: 7, Number: 0}, {Letter: 8, Number: 0}, {Letter: 9, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 1}, {Letter: 5, Number: 2}, {Letter: 5, Number: 3}, {Letter: 5, Number: 4}}},
+	}
+
+	for _, value := range placesToRemove {
+		examplePieceData.Remove(value)
+	}
+
+	for i, piece := range examplePieceData {
+		for j, square := range piece.Coords {
+			if square != answer[i].Coords[j] {
+				t.Errorf("Remove function was incorrect, got: %v, want: %v", answer[i].Coords, piece.Coords)
+				break
+			}
+		}
+
+		if piece.Type != answer[i].Type {
+			t.Errorf("Remove function was incorrect, got: %v, want: %v", answer[i], piece)
+		}
+	}
 }
