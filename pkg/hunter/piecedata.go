@@ -1,6 +1,8 @@
 package hunter
 
 import (
+	"errors"
+
 	"github.com/eaglerock1337/go/battleship/pkg/board"
 )
 
@@ -29,10 +31,15 @@ func GenPieceData(ship board.Ship) PieceData {
 }
 
 // Remove removes a piece in the piece data slice.
-func (p *PieceData) Remove(pos int) {
+func (p *PieceData) Remove(pos int) error {
 	lastPos := len(*p) - 1
+	if pos < 0 || pos > lastPos {
+		return errors.New("Position to remove is out of bounds")
+	}
+
 	(*p)[pos] = (*p)[lastPos]
-	*p = (*p)[:lastPos-1]
+	*p = (*p)[:lastPos]
+	return nil
 }
 
 // DeleteSquare removes all Pieces that reside in a given Square.

@@ -138,19 +138,118 @@ func TestRemove(t *testing.T) {
 	}
 
 	for _, value := range placesToRemove {
-		examplePieceData.Remove(value)
+		err := examplePieceData.Remove(value)
+		if err != nil {
+			t.Errorf("Remove(%v) returned an error trying to run on PieceData of length %v: %v", value, len(examplePieceData), err)
+		}
 	}
 
 	for i, piece := range examplePieceData {
 		for j, square := range piece.Coords {
 			if square != answer[i].Coords[j] {
-				t.Errorf("Remove function was incorrect, got: %v, want: %v", answer[i].Coords, piece.Coords)
+				t.Errorf("Remove function was incorrect, got: %v, want: %v", piece.Coords, answer[i].Coords)
 				break
 			}
 		}
+	}
+}
 
-		if piece.Type != answer[i].Type {
-			t.Errorf("Remove function was incorrect, got: %v, want: %v", answer[i], piece)
+func TestBadRemove(t *testing.T) {
+	placesToRemove := [5]int{6, 8, 5, -1, 44}
+	samplePieceData := PieceData{
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 7, Number: 3}, {Letter: 7, Number: 4}, {Letter: 7, Number: 5}, {Letter: 7, Number: 6}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 9, Number: 5}, {Letter: 9, Number: 6}, {Letter: 9, Number: 7}, {Letter: 9, Number: 8}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 0}, {Letter: 7, Number: 0}, {Letter: 8, Number: 0}, {Letter: 9, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 1}, {Letter: 5, Number: 2}, {Letter: 5, Number: 3}, {Letter: 5, Number: 4}}},
+	}
+
+	for _, value := range placesToRemove {
+		err := samplePieceData.Remove(value)
+		if err == nil {
+			t.Errorf("Remove did not error as expected with %v, returned PieceData: %v", value, samplePieceData)
+		}
+	}
+}
+
+func TestDeleteSquare(t *testing.T) {
+	squaresToRemove := [5]board.Square{
+		{Letter: 3, Number: 0},
+		{Letter: 7, Number: 4},
+		{Letter: 6, Number: 8},
+		{Letter: 9, Number: 5},
+		{Letter: 5, Number: 3},
+	}
+	exampleData := PieceData{
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 0}, {Letter: 4, Number: 0}, {Letter: 5, Number: 0}, {Letter: 6, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 2}, {Letter: 4, Number: 2}, {Letter: 5, Number: 2}, {Letter: 6, Number: 2}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 0}, {Letter: 7, Number: 0}, {Letter: 8, Number: 0}, {Letter: 9, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 2}, {Letter: 7, Number: 2}, {Letter: 8, Number: 2}, {Letter: 9, Number: 2}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 4, Number: 5}, {Letter: 5, Number: 5}, {Letter: 6, Number: 5}, {Letter: 7, Number: 5}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 7, Number: 3}, {Letter: 7, Number: 4}, {Letter: 7, Number: 5}, {Letter: 7, Number: 6}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 9, Number: 5}, {Letter: 9, Number: 6}, {Letter: 9, Number: 7}, {Letter: 9, Number: 8}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 1}, {Letter: 5, Number: 2}, {Letter: 5, Number: 3}, {Letter: 5, Number: 4}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 3}, {Letter: 5, Number: 4}, {Letter: 5, Number: 5}, {Letter: 5, Number: 6}}},
+	}
+	expected := PieceData{
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 4, Number: 5}, {Letter: 5, Number: 5}, {Letter: 6, Number: 5}, {Letter: 7, Number: 5}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 2}, {Letter: 7, Number: 2}, {Letter: 8, Number: 2}, {Letter: 9, Number: 2}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 2}, {Letter: 4, Number: 2}, {Letter: 5, Number: 2}, {Letter: 6, Number: 2}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 0}, {Letter: 7, Number: 0}, {Letter: 8, Number: 0}, {Letter: 9, Number: 0}}},
+	}
+
+	for _, square := range squaresToRemove {
+		exampleData.DeleteSquare(square)
+	}
+
+	for i, piece := range exampleData {
+		for j, square := range piece.Coords {
+			if square != expected[i].Coords[j] {
+				t.Errorf("DeleteSquare function was incorrect, got: %v, want: %v", piece.Coords, expected[i].Coords)
+				break
+			}
+		}
+	}
+}
+
+func TestDeletePiece(t *testing.T) {
+	piecesToRemove := [5]board.Piece{
+		{Type: board.Ship("Cruiser"), Coords: []board.Square{{Letter: 3, Number: 0}, {Letter: 3, Number: 1}}},
+		{Type: board.Ship("Cruiser"), Coords: []board.Square{{Letter: 4, Number: 4}, {Letter: 4, Number: 5}}},
+		{Type: board.Ship("Cruiser"), Coords: []board.Square{{Letter: 6, Number: 0}, {Letter: 6, Number: 1}}},
+		{Type: board.Ship("Cruiser"), Coords: []board.Square{{Letter: 7, Number: 2}, {Letter: 8, Number: 2}}},
+		{Type: board.Ship("Cruiser"), Coords: []board.Square{{Letter: 8, Number: 5}, {Letter: 9, Number: 5}}},
+	}
+	exampleData := PieceData{
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 0, Number: 0}, {Letter: 1, Number: 0}, {Letter: 2, Number: 0}, {Letter: 3, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 0}, {Letter: 4, Number: 0}, {Letter: 5, Number: 0}, {Letter: 6, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 2}, {Letter: 4, Number: 2}, {Letter: 5, Number: 2}, {Letter: 6, Number: 2}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 0}, {Letter: 7, Number: 0}, {Letter: 8, Number: 0}, {Letter: 9, Number: 0}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 6, Number: 2}, {Letter: 7, Number: 2}, {Letter: 8, Number: 2}, {Letter: 9, Number: 2}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 4, Number: 5}, {Letter: 5, Number: 5}, {Letter: 6, Number: 5}, {Letter: 7, Number: 5}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 7, Number: 3}, {Letter: 7, Number: 4}, {Letter: 7, Number: 5}, {Letter: 7, Number: 6}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 9, Number: 5}, {Letter: 9, Number: 6}, {Letter: 9, Number: 7}, {Letter: 9, Number: 8}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 1}, {Letter: 5, Number: 2}, {Letter: 5, Number: 3}, {Letter: 5, Number: 4}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 3}, {Letter: 5, Number: 4}, {Letter: 5, Number: 5}, {Letter: 5, Number: 6}}},
+	}
+	expected := PieceData{
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 3}, {Letter: 5, Number: 4}, {Letter: 5, Number: 5}, {Letter: 5, Number: 6}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 5, Number: 1}, {Letter: 5, Number: 2}, {Letter: 5, Number: 3}, {Letter: 5, Number: 4}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 3, Number: 2}, {Letter: 4, Number: 2}, {Letter: 5, Number: 2}, {Letter: 6, Number: 2}}},
+		{Type: board.Ship("Battleship"), Coords: []board.Square{{Letter: 7, Number: 3}, {Letter: 7, Number: 4}, {Letter: 7, Number: 5}, {Letter: 7, Number: 6}}},
+	}
+
+	for _, piece := range piecesToRemove {
+		exampleData.DeletePiece(piece)
+	}
+
+	for i, piece := range exampleData {
+		for j, square := range piece.Coords {
+			if square != expected[i].Coords[j] {
+				t.Errorf("DeletePiece function was incorrect, got: %v, want: %v", piece.Coords, expected[i].Coords)
+				break
+			}
 		}
 	}
 }
