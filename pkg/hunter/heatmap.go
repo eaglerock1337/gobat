@@ -23,7 +23,7 @@ func (h *HeatMap) AddSquare(s board.Square) {
 
 // PopulateMap will add PieceData to the heatmap, optionally
 // purging the existing data based on the initialize boolean.
-func (h HeatMap) PopulateMap(p PieceData, initialize bool) {
+func (h *HeatMap) PopulateMap(p PieceData, initialize bool) {
 	if initialize {
 		h.Initialize()
 	}

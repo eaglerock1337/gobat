@@ -59,3 +59,67 @@ func TestAddSquare(t *testing.T) {
 		}
 	}
 }
+
+var examplePieceSquares = [10][]board.Square{
+	{{Letter: 3, Number: 1}, {Letter: 3, Number: 2}, {Letter: 3, Number: 3}, {Letter: 3, Number: 4}},
+	{{Letter: 3, Number: 2}, {Letter: 4, Number: 2}, {Letter: 5, Number: 2}, {Letter: 6, Number: 2}},
+	{{Letter: 6, Number: 2}, {Letter: 7, Number: 2}, {Letter: 8, Number: 2}, {Letter: 9, Number: 2}},
+	{{Letter: 5, Number: 1}, {Letter: 5, Number: 2}, {Letter: 5, Number: 3}, {Letter: 5, Number: 4}},
+	{{Letter: 5, Number: 3}, {Letter: 5, Number: 4}, {Letter: 5, Number: 5}, {Letter: 5, Number: 6}},
+}
+
+func TestPopulateMap(t *testing.T) {
+	var exampleData = PieceData{
+		{Type: board.Ship("Battleship"), Coords: examplePieceSquares[0]},
+		{Type: board.Ship("Battleship"), Coords: examplePieceSquares[1]},
+		{Type: board.Ship("Battleship"), Coords: examplePieceSquares[2]},
+		{Type: board.Ship("Battleship"), Coords: examplePieceSquares[3]},
+		{Type: board.Ship("Battleship"), Coords: examplePieceSquares[4]},
+	}
+	var initializations = [2]bool{false, true}
+	var expected = map[board.Square][2]int{
+		{Letter: 3, Number: 2}: {31, 2},
+		{Letter: 3, Number: 4}: {1, 1},
+		{Letter: 5, Number: 2}: {25, 2},
+		{Letter: 6, Number: 2}: {31, 2},
+		{Letter: 5, Number: 4}: {2, 2},
+		{Letter: 7, Number: 7}: {18, 0},
+		{Letter: 8, Number: 3}: {3, 0},
+		{Letter: 0, Number: 0}: {4, 0},
+		{Letter: 1, Number: 9}: {12, 0},
+		{Letter: 8, Number: 3}: {3, 0},
+	}
+
+	for i, init := range initializations {
+		testHeatMap := HeatMap(testData)
+		testHeatMap.PopulateMap(exampleData, init)
+
+		for square, values := range expected {
+			if testHeatMap[square.Letter][square.Number] != values[i] {
+				t.Errorf(
+					"PopulateMap was incorrect for square %v with initialization: %v, got: %v, want: %v",
+					square,
+					init,
+					testHeatMap[square.Letter][square.Number],
+					values[i],
+				)
+			}
+		}
+	}
+}
+
+func TestGetSquare(t *testing.T) {
+	testHeatMap := HeatMap(testData)
+
+	for _, square := range testSquares {
+		result := testHeatMap.GetSquare(square)
+		if testData[square.Letter][square.Number] != result {
+			t.Errorf(
+				"GetSquare was incorrect for square %v, got: %v, want: %v",
+				square,
+				testData[square.Letter][square.Number],
+				result,
+			)
+		}
+	}
+}
