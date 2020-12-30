@@ -27,6 +27,21 @@ import (
 	"github.com/eaglerock1337/go/battleship/pkg/board"
 )
 
+// These two variables allow for conversion of each square status to
+// the status string and vice-versa. This allows for statuses to be stored
+// as integers for faster lookup and comparison.
+var (
+	values = map[string]int{
+		"Empty": 0, "Miss": 1, "Destroyer": 2, "Submarine": 3,
+		"Cruiser": 4, "Battleship": 5, "Carrier": 6, "Hit": 7,
+	}
+
+	status = [8]string{
+		"Empty", "Miss", "Destroyer", "Submarine",
+		"Cruiser", "Battleship", "Carrier", "Hit",
+	}
+)
+
 // Hunter is a struct that holds all data necessary to determine
 // the optimal gameplay of Battleship.
 type Hunter struct {
@@ -37,6 +52,7 @@ type Hunter struct {
 	HeatMap  HeatMap           // The heat map popupated from the existing piece data
 	SeekMode bool              // Whether the hunter is in Seek or Destroy mode
 	Shots    []board.Square    // The current turn's list of best squares to play
+	HitStack []board.Square    // The current number of outstanding hits
 }
 
 // NewHunter initializes a Hunter struct with the full list of ships,
@@ -47,7 +63,7 @@ func NewHunter() Hunter {
 	newHunter.SeekMode = true
 
 	for _, ship := range newHunter.Ships {
-		if ship.GetString() != "Submarine" {
+		if ship.GetType() != "Submarine" {
 			newHunter.Data[ship.GetLength()] = GenPieceData(ship)
 		}
 	}
@@ -67,9 +83,39 @@ func (h *Hunter) DeleteShip(s board.Ship) error {
 	return errors.New("Ship not found")
 }
 
+// SearchPiece searches the PieceData for the given ship for all
+// possible orientations, then intersect with the current hit stack.
+// If the function succeeds in retrieving one result, it will return
+// the piece with the location of the ship. Otherwise, the function
+// will return with an error.
+func (h Hunter) SearchPiece(sq board.Square, sh board.Ship) ([]board.Piece, error) {
+
+}
+
+// SinkShip will use the active hit stack, the sinking square, and the
+// type of ship sunk to find the exact location of the ship, update the
+// board and piece data, as well as delete the ship from the ship list.
+func (h *Hunter) SinkShip(sq board.Square, sh board.Ship) error {
+
+}
+
 // Seek is the main hunting routine where the HeatMap is populated with
 // all possible ship positions from the PieceData, and the top positions
 // are populated in the Shots slice.
 func (h *Hunter) Seek() {
+
+}
+
+// Destroy is the routine for sinking a ship that has been detected. Based
+// on the squares in the HitStack, all available adjacent squares are
+// checked in the HeatMap and ranked by total occurrences.
+func (h *Hunter) Destroy() {
+
+}
+
+// Turn processes a single turn in the simulator based on the given
+// square and result. The data is pruned, heatmap updated, and ideal moves
+// given based on the mode the Hunter is currently in.
+func (h *Hunter) Turn(s board.Square, result string) error {
 
 }
