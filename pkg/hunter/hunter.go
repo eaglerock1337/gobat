@@ -99,11 +99,32 @@ func (h *Hunter) SinkShip(sq board.Square, sh board.Ship) error {
 
 }
 
+// Refresh will refresh the HeatMap based on the updated piece data and
+// ship data.
+func (h *Hunter) Refresh() {
+	h.HeatMap.Initialize()
+
+	for _, ship := range h.Ships {
+		h.HeatMap.PopulateMap(h.Data[ship.GetLength()], false)
+	}
+}
+
 // Seek is the main hunting routine where the HeatMap is populated with
 // all possible ship positions from the PieceData, and the top positions
 // are populated in the Shots slice.
 func (h *Hunter) Seek() {
+	var top []board.Piece
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 10; j++ {
+			if h.Board[i][j] > 0 {
+				if len(top) > 0 {
 
+				} else {
+
+				}
+			}
+		}
+	}
 }
 
 // Destroy is the routine for sinking a ship that has been detected. Based
