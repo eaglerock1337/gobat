@@ -115,7 +115,6 @@ func (h *Hunter) Refresh() {
 func (h *Hunter) Seek() {
 	var top []board.Square
 	for i := 0; i < 10; i++ {
-	NextSquare:
 		for j := 0; j < 10; j++ {
 			score := h.HeatMap[i][j]
 			// Only try to add the value if it actually registered any hits
@@ -125,18 +124,19 @@ func (h *Hunter) Seek() {
 
 				// Only add if the score is high enough or if the list isn't full yet
 				if topLength < 5 || score > h.HeatMap.GetSquare(top[topLength-1]) {
-					// Insert the value into the list and continue to NextSquare
-					for k, topSquare := range top {
-						if score >= h.HeatMap.GetSquare(topSquare) {
-							copy(top[i+1:topLength-1], top[i:])
-							top[k] = square
-							continue NextSquare
+					target := topLength
+					if topLength > 0 {
+						for k := topLength - 1; k >= 0; k-- {
+							if score >= h.HeatMap.GetSquare(top[k]) {
+								target := k
+								break
+							}
 						}
 					}
-
-					// If it wasn't added above, append to the end if the list isn't full
-					if topLength < 5 {
-						top = append(top, square)
+					top = append(top, square) // Add to empty array or make space
+					if topLength > 0 {
+						copy(top[k+1:topLength-1], top[i:])
+						top[k] = square
 					}
 				}
 			}
