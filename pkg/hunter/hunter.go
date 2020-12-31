@@ -115,20 +115,28 @@ func (h *Hunter) Refresh() {
 func (h *Hunter) Seek() {
 	var top []board.Square
 	for i := 0; i < 10; i++ {
+	NextSquare:
 		for j := 0; j < 10; j++ {
 			score := h.HeatMap[i][j]
-			// Only try to add the value if it registered any hits
+			// Only try to add the value if it actually registered any hits
 			if score > 0 {
 				square, _ := board.SquareByValue(i, j)
 				topLength := len(top)
 
-				// Add an exception if the slice is empty to just add the score
-				if topLength == 0 {
-					top = append(top, square)
-				} else {
-					// Skip adding if the list is full and the square's score isn't high enough
-					if topLength < 5 || score > h.HeatMap.GetSquare(top[topLength-1]) {
+				// Only add if the score is high enough or if the list isn't full yet
+				if topLength < 5 || score > h.HeatMap.GetSquare(top[topLength-1]) {
+					// Insert the value into the list and continue to NextSquare
+					for k, topSquare := range top {
+						if score >= h.HeatMap.GetSquare(topSquare) {
+							copy(top[i+1:topLength-1], top[i:])
+							top[k] = square
+							continue NextSquare
+						}
+					}
 
+					// If it wasn't added above, append to the end if the list isn't full
+					if topLength < 5 {
+						top = append(top, square)
 					}
 				}
 			}
