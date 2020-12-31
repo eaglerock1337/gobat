@@ -128,15 +128,16 @@ func (h *Hunter) Seek() {
 					if topLength > 0 {
 						for k := topLength - 1; k >= 0; k-- {
 							if score >= h.HeatMap.GetSquare(top[k]) {
-								target := k
+								target = k
 								break
 							}
 						}
 					}
+
 					top = append(top, square) // Add to empty array or make space
 					if topLength > 0 {
-						copy(top[k+1:topLength-1], top[i:])
-						top[k] = square
+						copy(top[target+1:topLength-1], top[target:])
+						top[target] = square
 					}
 				}
 			}
