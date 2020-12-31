@@ -113,18 +113,29 @@ func (h *Hunter) Refresh() {
 // all possible ship positions from the PieceData, and the top positions
 // are populated in the Shots slice.
 func (h *Hunter) Seek() {
-	var top []board.Piece
+	var top []board.Square
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			if h.Board[i][j] > 0 {
-				if len(top) > 0 {
+			score := h.HeatMap[i][j]
+			// Only try to add the value if it registered any hits
+			if score > 0 {
+				square, _ := board.SquareByValue(i, j)
+				topLength := len(top)
 
+				// Add an exception if the slice is empty to just add the score
+				if topLength == 0 {
+					top = append(top, square)
 				} else {
+					// Skip adding if the list is full and the square's score isn't high enough
+					if topLength < 5 || score > h.HeatMap.GetSquare(top[topLength-1]) {
 
+					}
 				}
 			}
 		}
 	}
+
+	h.Shots = top
 }
 
 // Destroy is the routine for sinking a ship that has been detected. Based
