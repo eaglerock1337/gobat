@@ -51,14 +51,14 @@ var directions = [4][2]int{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
 // Hunter is a struct that holds all data necessary to determine
 // the optimal gameplay of Battleship.
 type Hunter struct {
-	Turns    int               // How many turns the Hunter has used
-	Ships    []board.Ship      // The list of active unsunk ships
-	Data     map[int]PieceData // The list of possible ship positiions by size
-	Board    board.Board       // The Battleship board with known data
-	HeatMap  HeatMap           // The heat map popupated from the existing piece data
-	SeekMode bool              // Whether the hunter is in Seek or Destroy mode
-	Shots    []board.Square    // The current turn's list of best squares to play
-	HitStack []board.Square    // The current number of outstanding hits
+	Turns    int                // How many turns the Hunter has used
+	Ships    []board.Ship       // The list of active unsunk ships
+	Data     map[int]*PieceData // The list of possible ship positiions by size
+	Board    board.Board        // The Battleship board with known data
+	HeatMap  HeatMap            // The heat map popupated from the existing piece data
+	SeekMode bool               // Whether the hunter is in Seek or Destroy mode
+	Shots    []board.Square     // The current turn's list of best squares to play
+	HitStack []board.Square     // The current number of outstanding hits
 }
 
 // NewHunter initializes a Hunter struct with the full list of ships,
@@ -70,7 +70,8 @@ func NewHunter() Hunter {
 
 	for _, ship := range newHunter.Ships {
 		if ship.GetType() != "Submarine" {
-			newHunter.Data[ship.GetLength()] = GenPieceData(ship)
+			data := GenPieceData(ship)
+			newHunter.Data[ship.GetLength()] = &data
 		}
 	}
 
@@ -87,6 +88,24 @@ func (h *Hunter) DeleteShip(s board.Ship) error {
 		}
 	}
 	return errors.New("Ship not found")
+}
+
+// GetValidLengths returns a slice of integers for all active ship types.
+func (h Hunter) GetValidLengths() []int {
+	var lengths []int
+	foundThrees := false
+	for _, ship := range h.Ships {
+		length := ship.GetLength()
+		if length == 3 {
+			if foundThrees {
+				continue
+			}
+			foundThrees = true
+		}
+		lengths = append(lengths, length)
+	}
+
+	return lengths
 }
 
 // AddHitStack adds a given Square to the hit stack.
@@ -178,7 +197,26 @@ func (h Hunter) SearchPiece(sq board.Square, sh board.Ship) (board.Piece, error)
 // type of ship sunk to find the exact location of the ship, update the
 // board and piece data, as well as delete the ship from the ship list.
 func (h *Hunter) SinkShip(sq board.Square, sh board.Ship) error {
+	piece, err := h.SearchPiece(sq, sh)
+	if err != nil {
+		return errors.New("SinkShip failed due to SearchPiece not finding a piece")
+	}
 
+	for _, square := range piece.Coords {
+		h.DelHitStack(square)
+	}
+
+	for _, length := range h.GetValidLengths() {
+		h.Data[length].DeletePiece(piece)
+	}
+
+	err = h.DeleteShip(sh)
+	if err != nil {
+		return errors.New("SinkShip failed due to DeleteShip returning an error")
+	}
+
+	h.Board.SetPiece(piece)
+	return nil
 }
 
 // Refresh will refresh the HeatMap based on the updated piece data and
@@ -187,7 +225,7 @@ func (h *Hunter) Refresh() {
 	h.HeatMap.Initialize()
 
 	for _, ship := range h.Ships {
-		h.HeatMap.PopulateMap(h.Data[ship.GetLength()], false)
+		h.HeatMap.PopulateMap(*h.Data[ship.GetLength()], false)
 	}
 }
 
