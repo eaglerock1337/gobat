@@ -45,6 +45,9 @@ var (
 	}
 )
 
+// The four directions (up, down, left, and right) for finding a ship in the hitmap
+var directions = [4][2]int{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
+
 // Hunter is a struct that holds all data necessary to determine
 // the optimal gameplay of Battleship.
 type Hunter struct {
@@ -98,8 +101,8 @@ func (h *Hunter) DelHitStack(s board.Square) {
 	for i, square := range h.HitStack {
 		if square.Letter == s.Letter && square.Number == s.Number {
 			length := len(h.HitStack) - 1
-			h.HitStack[i] == h.HitStack(length)
-			h.HitStack == h.HitStack[:length]
+			h.HitStack[i] = h.HitStack[length]
+			h.HitStack = h.HitStack[:length]
 			return
 		}
 	}
@@ -121,14 +124,54 @@ func (h Hunter) InHitStack(s board.Square) bool {
 // If the function succeeds in retrieving one result, it will return
 // the piece with the location of the ship. Otherwise, the function
 // will return with an error.
-func (h Hunter) SearchPiece(sq board.Square, sh board.Ship) ([]board.Piece, error) {
+func (h Hunter) SearchPiece(sq board.Square, sh board.Ship) (board.Piece, error) {
 	var hits []board.Piece
-	for let := -1; let <= 1; let += 2 {
-		for num := -1; num <= 1; num += 2 {
+	length := sh.GetLength()
+	for _, direction := range directions {
+		let, num := direction[0], direction[1]
 
+		// Check if the piece is in the stack
+		nextSquare, err := board.SquareByValue(sq.Letter+let, sq.Number+num)
+		if err == nil {
+			continue
 		}
+		lastSquare, err := board.SquareByValue(sq.Letter+let*(length-1), sq.Number+num*(length-1))
+		if err != nil {
+			continue
+		}
+		for i := 1; i < length; i++ {
+			square, _ := board.SquareByValue(sq.Letter+let*(i), sq.Number+num*(i))
+			if !h.InHitStack(square) {
+				continue
+			}
+		}
+
+		// Create the piece to add to the list of hits
+		var startSquare board.Square
+		if let < 0 || num < 0 {
+			startSquare = lastSquare
+		} else {
+			startSquare = nextSquare
+		}
+
+		var horizontal bool
+		if let != 0 {
+			horizontal = true
+		} else {
+			horizontal = false
+		}
+
+		piece, _ := board.NewPiece(sh, startSquare, horizontal)
+		hits = append(hits, piece)
 	}
 
+	if len(hits) == 0 {
+		return board.Piece{}, errors.New("No valid piece found in hit stack")
+	}
+	if len(hits) > 1 {
+		return board.Piece{}, errors.New("Duplicate pieces found, algorithm failed")
+	}
+	return hits[0], nil
 }
 
 // SinkShip will use the active hit stack, the sinking square, and the
