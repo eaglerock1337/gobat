@@ -18,6 +18,9 @@ It implements three major methods to do the following:
 - Seek ships by finding the hottest potential squares in the heat map
 - Destroy ships that have been found by shooting around known squares
 - Take turns by accepting new data about the board and updating the board and piece data
+
+I am thinking that the hitstack requires its own member methods and better error checking
+and data handling, but that can be added later on.
 */
 package hunter
 
@@ -83,12 +86,48 @@ func (h *Hunter) DeleteShip(s board.Ship) error {
 	return errors.New("Ship not found")
 }
 
+// AddHitStack adds a given Square to the hit stack.
+// This probably requires error checking to ensure duplicates don't enter the stack.
+func (h *Hunter) AddHitStack(s board.Square) {
+	h.HitStack = append(h.HitStack, s)
+}
+
+// DelHitStack removes a given Square from the hit stack.
+// This probably should return an error if it can't find the square.
+func (h *Hunter) DelHitStack(s board.Square) {
+	for i, square := range h.HitStack {
+		if square.Letter == s.Letter && square.Number == s.Number {
+			length := len(h.HitStack) - 1
+			h.HitStack[i] == h.HitStack(length)
+			h.HitStack == h.HitStack[:length]
+			return
+		}
+	}
+}
+
+// InHitStack checks the hit stack if a given Square is present and returns a boolean.
+func (h Hunter) InHitStack(s board.Square) bool {
+	for _, square := range h.HitStack {
+		if square.Letter == s.Letter && square.Number == s.Number {
+			return true
+		}
+	}
+
+	return false
+}
+
 // SearchPiece searches the PieceData for the given ship for all
 // possible orientations, then intersect with the current hit stack.
 // If the function succeeds in retrieving one result, it will return
 // the piece with the location of the ship. Otherwise, the function
 // will return with an error.
 func (h Hunter) SearchPiece(sq board.Square, sh board.Ship) ([]board.Piece, error) {
+	var hits []board.Piece
+	for let := -1; let <= 1; let += 2 {
+		for num := -1; num <= 1; num += 2 {
+
+		}
+	}
 
 }
 
