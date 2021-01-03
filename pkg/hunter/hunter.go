@@ -305,5 +305,37 @@ func (h *Hunter) Destroy() {
 // square and result. The data is pruned, heatmap updated, and ideal moves
 // given based on the mode the Hunter is currently in.
 func (h *Hunter) Turn(s board.Square, result string) error {
+	err := h.Board.SetString(s, result)
+	if err != nil {
+		return errors.New("Turn failed as the result was invalid")
+	}
 
+	ship, _ := board.NewShip(result)
+	if h.Board.IsEmpty(s) {
+		return errors.New("Turn failed as it was given an empty result")
+	}
+
+	if h.Board.IsSunk(s) {
+		h.SinkShip(s, ship)
+		h.SeekMode = true
+	}
+
+	if h.Board.IsHit(s) {
+		h.AddHitStack(s)
+		h.SeekMode = false
+	}
+
+	if h.Board.IsMiss(s) {
+		for _, length := range h.GetValidLengths() {
+			h.Data[length].DeleteSquare(s)
+		}
+	}
+
+	if h.SeekMode {
+		h.Seek()
+	} else {
+		h.Destroy()
+	}
+
+	return nil
 }
