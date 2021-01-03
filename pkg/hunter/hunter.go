@@ -317,7 +317,7 @@ func (h *Hunter) Turn(s board.Square, result string) error {
 
 	if h.Board.IsSunk(s) {
 		h.SinkShip(s, ship)
-		h.SeekMode = true
+		h.SeekMode = len(h.HitStack) == 0
 	}
 
 	if h.Board.IsHit(s) {
@@ -337,5 +337,6 @@ func (h *Hunter) Turn(s board.Square, result string) error {
 		h.Destroy()
 	}
 
+	h.Turns++
 	return nil
 }
