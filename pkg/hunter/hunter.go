@@ -45,7 +45,7 @@ var (
 	}
 )
 
-// The four directions (up, down, left, and right) for finding a ship in the hitmap
+// The four directions (up, down, left, and right) for finding adjacent squares
 var directions = [4][2]int{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
 
 // Hunter is a struct that holds all data necessary to determine
@@ -67,6 +67,7 @@ func NewHunter() Hunter {
 	var newHunter Hunter
 	newHunter.Ships = board.ShipTypes()
 	newHunter.SeekMode = true
+	newHunter.Shots = make([]board.Square, 0, 5)
 
 	for _, ship := range newHunter.Ships {
 		if ship.GetType() != "Submarine" {
@@ -229,49 +230,75 @@ func (h *Hunter) Refresh() {
 	}
 }
 
+// ClearShots will empty out the current shot list.
+func (h *Hunter) ClearShots() {
+	h.Shots = make([]board.Square, 0, 5)
+}
+
+// AddShot will attempt to add the given square to the Shots array, which
+// will only get accepted if in the top 5 Shots.
+func (h *Hunter) AddShot(s board.Square) {
+	score := h.HeatMap[s.Letter][s.Number]
+	// Only try to add the value if it actually registered any hits
+	if score > 0 {
+		length := len(h.Shots)
+
+		// Only add if the score is high enough or if the list isn't full yet
+		if length < 5 || score > h.HeatMap.GetSquare(h.Shots[length-1]) {
+			target := length
+			if length > 0 {
+				for k := length - 1; k >= 0; k-- {
+					if score >= h.HeatMap.GetSquare(h.Shots[k]) {
+						target = k
+						break
+					}
+				}
+			}
+
+			h.Shots = append(h.Shots, s) // Add to empty array or make space
+			if length > 0 {
+				copy(h.Shots[target+1:length-1], h.Shots[target:])
+				h.Shots[target] = s
+			}
+		}
+	}
+}
+
 // Seek is the main hunting routine where the HeatMap is populated with
 // all possible ship positions from the PieceData, and the top positions
 // are populated in the Shots slice.
 func (h *Hunter) Seek() {
-	var top []board.Square
+	h.ClearShots()
+
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			score := h.HeatMap[i][j]
-			// Only try to add the value if it actually registered any hits
-			if score > 0 {
-				square, _ := board.SquareByValue(i, j)
-				topLength := len(top)
-
-				// Only add if the score is high enough or if the list isn't full yet
-				if topLength < 5 || score > h.HeatMap.GetSquare(top[topLength-1]) {
-					target := topLength
-					if topLength > 0 {
-						for k := topLength - 1; k >= 0; k-- {
-							if score >= h.HeatMap.GetSquare(top[k]) {
-								target = k
-								break
-							}
-						}
-					}
-
-					top = append(top, square) // Add to empty array or make space
-					if topLength > 0 {
-						copy(top[target+1:topLength-1], top[target:])
-						top[target] = square
-					}
-				}
-			}
+			square, _ := board.SquareByValue(i, j)
+			h.AddShot(square)
 		}
 	}
-
-	h.Shots = top
 }
 
 // Destroy is the routine for sinking a ship that has been detected. Based
 // on the squares in the HitStack, all available adjacent squares are
 // checked in the HeatMap and ranked by total occurrences.
 func (h *Hunter) Destroy() {
+	h.ClearShots()
 
+	for _, hit := range h.HitStack {
+	Adjacent:
+		for _, direction := range directions {
+			let, num := direction[0], direction[1]
+			square, err := board.SquareByValue(hit.Letter+let, hit.Number+num)
+			if err != nil {
+				for _, shot := range h.Shots {
+					if shot == square {
+						continue Adjacent
+					}
+				}
+				h.AddShot(square)
+			}
+		}
+	}
 }
 
 // Turn processes a single turn in the simulator based on the given
