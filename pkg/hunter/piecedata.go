@@ -3,7 +3,7 @@ package hunter
 import (
 	"errors"
 
-	"github.com/eaglerock1337/go/battleship/pkg/board"
+	"github.com/eaglerock1337/gobat/pkg/board"
 )
 
 // PieceData is a slice of pieces that contains all possible placements for

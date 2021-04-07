@@ -1,7 +1,7 @@
 package hunter
 
 import (
-	"github.com/eaglerock1337/go/battleship/pkg/board"
+	"github.com/eaglerock1337/gobat/pkg/board"
 )
 
 // HeatMap is a struct for holding heatmap data of a given Battleship board.

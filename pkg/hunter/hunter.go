@@ -27,7 +27,7 @@ package hunter
 import (
 	"errors"
 
-	"github.com/eaglerock1337/go/battleship/pkg/board"
+	"github.com/eaglerock1337/gobat/pkg/board"
 )
 
 // These two variables allow for conversion of each square status to

@@ -3,7 +3,7 @@ package hunter
 import (
 	"testing"
 
-	"github.com/eaglerock1337/go/battleship/pkg/board"
+	"github.com/eaglerock1337/gobat/pkg/board"
 )
 
 var exampleShips = [5]board.Ship{

@@ -3,7 +3,7 @@ package hunter
 import (
 	"errors"
 
-	"github.com/eaglerock1337/go/battleship/pkg/board"
+	"github.com/eaglerock1337/gobat/pkg/board"
 )
 
 // HitStack is a type that provides a stack of squares that indicate hits

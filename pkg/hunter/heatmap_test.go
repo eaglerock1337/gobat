@@ -3,7 +3,7 @@ package hunter
 import (
 	"testing"
 
-	"github.com/eaglerock1337/go/battleship/pkg/board"
+	"github.com/eaglerock1337/gobat/pkg/board"
 )
 
 var testData = [10][10]int{
