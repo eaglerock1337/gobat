@@ -140,3 +140,32 @@ func TestDelHitStack(t *testing.T) {
 		t.Errorf("TestDelHitStack did not delete %v as expected, got %v", deleteSquare, testDelHitStack.HitStack)
 	}
 }
+
+var exampleWrongSquares = [5]board.Square{
+	{Letter: 1, Number: 5},
+	{Letter: 2, Number: 3},
+	{Letter: 7, Number: 5},
+	{Letter: 2, Number: 8},
+	{Letter: 9, Number: 0},
+}
+
+func TestInHitStack(t *testing.T) {
+	testInHitStack := NewHunter()
+
+	for _, square := range exampleSquares {
+		testInHitStack.AddHitStack(square)
+	}
+
+	for _, square := range exampleSquares {
+		if !testInHitStack.InHitStack(square) {
+			t.Errorf("InHitStack returned false for Square %v and HitStack %v, expected true", square, testInHitStack.HitStack)
+		}
+	}
+
+	for _, square := range exampleWrongSquares {
+		if testInHitStack.InHitStack(square) {
+			t.Errorf("InHitStack returned true for Square %v and HitStack %v, expected false", square, testInHitStack.HitStack)
+		}
+	}
+
+}
