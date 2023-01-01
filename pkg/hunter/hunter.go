@@ -2,7 +2,7 @@
 Package hunter is responsible for the primary logic of determining ideal Battleship
 gameplay. Utilizing the basic structs and types implemented in the board module,
 hunter implements its own structs and types for the seek-and-destroy process,
-relying mostly on the built-in input validation and error checkintg from the board
+relying mostly on the built-in input validation and error checking from the board
 module.
 
 The PieceData type is responsible for maintaining the lists for all potential
@@ -53,9 +53,9 @@ var directions = [4][2]int{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
 type Hunter struct {
 	Turns    int                // How many turns the Hunter has used
 	Ships    []board.Ship       // The list of active unsunk ships
-	Data     map[int]*PieceData // The list of possible ship positiions by size
+	Data     map[int]*PieceData // The list of possible ship positions by size
 	Board    board.Board        // The Battleship board with known data
-	HeatMap  HeatMap            // The heat map popupated from the existing piece data
+	HeatMap  HeatMap            // The heat map populated from the existing piece data
 	SeekMode bool               // Whether the hunter is in Seek or Destroy mode
 	Shots    []board.Square     // The current turn's list of best squares to play
 	HitStack []board.Square     // The current number of outstanding hits
@@ -68,6 +68,7 @@ func NewHunter() Hunter {
 	newHunter.Ships = board.ShipTypes()
 	newHunter.SeekMode = true
 	newHunter.Shots = make([]board.Square, 0, 5)
+	newHunter.Data = make(map[int]*PieceData)
 
 	for _, ship := range newHunter.Ships {
 		if ship.GetType() != "Submarine" {
@@ -76,6 +77,7 @@ func NewHunter() Hunter {
 		}
 	}
 
+	newHunter.Refresh()
 	return newHunter
 }
 
@@ -330,6 +332,8 @@ func (h *Hunter) Turn(s board.Square, result string) error {
 			h.Data[length].DeleteSquare(s)
 		}
 	}
+
+	h.Refresh()
 
 	if h.SeekMode {
 		h.Seek()

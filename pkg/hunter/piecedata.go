@@ -58,3 +58,8 @@ func (p *PieceData) DeletePiece(piece board.Piece) {
 		p.DeleteSquare(square)
 	}
 }
+
+// Len returns the length of the PieceData slice.
+func (p *PieceData) Len() int {
+	return len(*p)
+}

@@ -265,3 +265,22 @@ func TestDeletePiece(t *testing.T) {
 		}
 	}
 }
+
+func TestLen(t *testing.T) {
+	var exampleData = PieceData{
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[0]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[1]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[2]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[3]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[4]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[5]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[6]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[7]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[8]},
+		{Type: board.Ship("Battleship"), Coords: exampleRemoveData[9]},
+	}
+
+	if exampleData.Len() != 10 {
+		t.Errorf("Len did not return the correct PieceData slice length")
+	}
+}
