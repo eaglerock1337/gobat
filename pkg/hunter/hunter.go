@@ -141,6 +141,50 @@ func (h Hunter) InHitStack(s board.Square) bool {
 	return false
 }
 
+// Refresh will refresh the HeatMap based on the updated piece data and
+// ship data.
+func (h *Hunter) Refresh() {
+	h.HeatMap.Initialize()
+
+	for _, ship := range h.Ships {
+		h.HeatMap.PopulateMap(*h.Data[ship.GetLength()], false)
+	}
+}
+
+// AddShot will attempt to add the given square to the Shots array, which
+// will only get accepted if in the top 5 Shots.
+func (h *Hunter) AddShot(s board.Square) {
+	score := h.HeatMap[s.Letter][s.Number]
+	// Only try to add the value if it actually registered any hits
+	if score > 0 {
+		length := len(h.Shots)
+
+		// Only add if the score is high enough or if the list isn't full yet
+		if length < 5 || score > h.HeatMap.GetSquare(h.Shots[length-1]) {
+			target := length
+			if length > 0 {
+				for k := length - 1; k >= 0; k-- {
+					if score >= h.HeatMap.GetSquare(h.Shots[k]) {
+						target = k
+						break
+					}
+				}
+			}
+
+			h.Shots = append(h.Shots, s) // Add to empty array or make space
+			if length > 0 {
+				copy(h.Shots[target+1:], h.Shots[target:length])
+				h.Shots[target] = s
+			}
+		}
+	}
+}
+
+// ClearShots will empty out the current shot list.
+func (h *Hunter) ClearShots() {
+	h.Shots = make([]board.Square, 0, 5)
+}
+
 // SearchPiece searches the PieceData for the given ship for all
 // possible orientations, then intersect with the current hit stack.
 // If the function succeeds in retrieving one result, it will return
@@ -220,50 +264,6 @@ func (h *Hunter) SinkShip(sq board.Square, sh board.Ship) error {
 
 	h.Board.SetPiece(piece)
 	return nil
-}
-
-// Refresh will refresh the HeatMap based on the updated piece data and
-// ship data.
-func (h *Hunter) Refresh() {
-	h.HeatMap.Initialize()
-
-	for _, ship := range h.Ships {
-		h.HeatMap.PopulateMap(*h.Data[ship.GetLength()], false)
-	}
-}
-
-// ClearShots will empty out the current shot list.
-func (h *Hunter) ClearShots() {
-	h.Shots = make([]board.Square, 0, 5)
-}
-
-// AddShot will attempt to add the given square to the Shots array, which
-// will only get accepted if in the top 5 Shots.
-func (h *Hunter) AddShot(s board.Square) {
-	score := h.HeatMap[s.Letter][s.Number]
-	// Only try to add the value if it actually registered any hits
-	if score > 0 {
-		length := len(h.Shots)
-
-		// Only add if the score is high enough or if the list isn't full yet
-		if length < 5 || score > h.HeatMap.GetSquare(h.Shots[length-1]) {
-			target := length
-			if length > 0 {
-				for k := length - 1; k >= 0; k-- {
-					if score >= h.HeatMap.GetSquare(h.Shots[k]) {
-						target = k
-						break
-					}
-				}
-			}
-
-			h.Shots = append(h.Shots, s) // Add to empty array or make space
-			if length > 0 {
-				copy(h.Shots[target+1:length-1], h.Shots[target:])
-				h.Shots[target] = s
-			}
-		}
-	}
 }
 
 // Seek is the main hunting routine where the HeatMap is populated with

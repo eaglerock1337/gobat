@@ -87,9 +87,7 @@ func TestBadDeleteShip(t *testing.T) {
 
 func TestGetValidLengths(t *testing.T) {
 	expectedResult := []int{5, 4, 3, 2}
-
 	testLengths := NewHunter()
-
 	result := testLengths.GetValidLengths()
 
 	if len(result) != len(expectedResult) {
@@ -167,5 +165,31 @@ func TestInHitStack(t *testing.T) {
 			t.Errorf("InHitStack returned true for Square %v and HitStack %v, expected false", square, testInHitStack.HitStack)
 		}
 	}
-
 }
+
+func TestAddShot(t *testing.T) {
+	testAddShot := NewHunter()
+
+	for _, square := range exampleSquares {
+		testAddShot.AddShot(square)
+	}
+
+	for _, square := range exampleSquares {
+		found := false
+		for _, stackSquare := range testAddShot.Shots {
+			if square == stackSquare {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("TestAddShot did not find %v in Shots array: %v", square, testAddShot.Shots)
+		}
+	}
+}
+
+// func TestSearchPiece(t *testing.T) {
+// 	testSearchPiece := NewHunter()
+// 	testSearchPiece.AddShot(board.Square{Letter: 0, Number: 0})
+// 	testSearchPiece.AddShot(board.Square{Letter: 0, Number: 1})
+// 	testSearchPiece.SearchPiece
+// }
