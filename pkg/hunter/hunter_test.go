@@ -81,7 +81,7 @@ func TestBadDeleteShip(t *testing.T) {
 	secondResult := testBadDelete.DeleteShip("Cruiser")
 
 	if secondResult.Error() != "Ship not found" {
-		t.Errorf("BadDeleteShip did not error as expected on Ship array: %v", testBadDelete.Ships)
+		t.Errorf("DeleteShip did not error as expected on Ship array: %v", testBadDelete.Ships)
 	}
 }
 
@@ -118,7 +118,7 @@ func TestHitStack(t *testing.T) {
 
 	for i, val := range testHitStack.HitStack {
 		if val != exampleSquares[i] {
-			t.Errorf("TestHitStack did not return expected HitStack %v, got %v", expectedSquares, testHitStack.HitStack)
+			t.Errorf("HitStack did not return expected HitStack %v, got %v", expectedSquares, testHitStack.HitStack)
 		}
 	}
 }
@@ -135,7 +135,7 @@ func TestDelHitStack(t *testing.T) {
 	testDelHitStack.DelHitStack(deleteSquare)
 
 	if len(testDelHitStack.HitStack) != len(exampleSquares)-1 {
-		t.Errorf("TestDelHitStack did not delete %v as expected, got %v", deleteSquare, testDelHitStack.HitStack)
+		t.Errorf("DelHitStack did not delete %v as expected, got %v", deleteSquare, testDelHitStack.HitStack)
 	}
 }
 
@@ -182,14 +182,42 @@ func TestAddShot(t *testing.T) {
 			}
 		}
 		if !found {
-			t.Errorf("TestAddShot did not find %v in Shots array: %v", square, testAddShot.Shots)
+			t.Errorf("AddShot did not add %v to Shots array: %v", square, testAddShot.Shots)
 		}
 	}
 }
 
-// func TestSearchPiece(t *testing.T) {
-// 	testSearchPiece := NewHunter()
-// 	testSearchPiece.AddShot(board.Square{Letter: 0, Number: 0})
-// 	testSearchPiece.AddShot(board.Square{Letter: 0, Number: 1})
-// 	testSearchPiece.SearchPiece
-// }
+func TestClearShots(t *testing.T) {
+	testClearShots := NewHunter()
+
+	for _, square := range exampleSquares {
+		testClearShots.AddShot(square)
+	}
+
+	testClearShots.ClearShots()
+
+	if len(testClearShots.Shots) > 0 {
+		t.Errorf("ClearShots did not clear the Shots array, found: %v", testClearShots.Shots)
+	}
+}
+
+func TestSearchPiece(t *testing.T) {
+	t.Skip("Skipping test due to function needing debugging.")
+
+	firstShot := board.Square{Letter: 0, Number: 0}
+	secondShot := board.Square{Letter: 0, Number: 1}
+
+	testSearchPiece := NewHunter()
+	testSearchPiece.AddShot(firstShot)
+	testSearchPiece.AddHitStack(firstShot)
+
+	result, err := testSearchPiece.SearchPiece(secondShot, "Destroyer")
+	if err != nil {
+		t.Errorf("SearchPiece failed and returned an error: %v", err)
+	}
+
+	expectedResult, _ := board.NewPiece(board.Ship("Destroyer"), board.Square{Letter: 0, Number: 0}, true)
+	if result.Coords[0] != expectedResult.Coords[0] || result.Coords[1] != expectedResult.Coords[1] {
+		t.Errorf("SearchPiece did not return result %v as expected, got %v", result, expectedResult)
+	}
+}
