@@ -26,6 +26,7 @@ package hunter
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/eaglerock1337/gobat/pkg/board"
 )
@@ -246,7 +247,7 @@ Direction:
 func (h *Hunter) SinkShip(sq board.Square, sh board.Ship) error {
 	piece, err := h.SearchPiece(sq, sh)
 	if err != nil {
-		return errors.New("SinkShip failed due to SearchPiece not finding a piece")
+		return fmt.Errorf("SinkShip failed due to SearchPiece not finding a piece: %v", err)
 	}
 
 	for _, square := range piece.Coords {
@@ -259,7 +260,7 @@ func (h *Hunter) SinkShip(sq board.Square, sh board.Ship) error {
 
 	err = h.DeleteShip(sh)
 	if err != nil {
-		return errors.New("SinkShip failed due to DeleteShip returning an error")
+		return fmt.Errorf("SinkShip failed due to DeleteShip returning error: %v", err)
 	}
 
 	h.Board.SetPiece(piece)

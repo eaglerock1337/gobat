@@ -294,8 +294,39 @@ func TestDupeSearchPiece(t *testing.T) {
 
 		result, err := testSearchPiece.SearchPiece(dupeSearchPieceSquares[test][numSquares-1], ship)
 		if err == nil {
-			t.Errorf("TestDupeSearchPiece failed to error out: %v", result)
+			t.Errorf("SearchPiece failed to error out: %v", result)
 		}
 	}
-	// testSearchPiece.Dat
+}
+
+func TestSinkShip(t *testing.T) {
+	for test, ship := range searchShips {
+		testSinkShip := NewHunter()
+		numSquares := len(searchPieceSquares[test])
+
+		for _, square := range searchPieceSquares[test] {
+			testSinkShip.AddShot(square)
+			testSinkShip.AddHitStack(square)
+		}
+
+		err := testSinkShip.SinkShip(searchPieceSquares[test][numSquares-1], ship)
+
+		if err != nil {
+			t.Errorf("SinkShip returned an unexpected error: %v", err)
+		}
+
+		if len(testSinkShip.HitStack) > 0 {
+			t.Errorf("SinkShip did not empty the HitStack as expected: %v", testSinkShip.HitStack)
+		}
+
+		if len(testSinkShip.Ships) != 4 {
+			t.Errorf("SinkShip did not delete the sunk ship as expected: %v", testSinkShip.Ships)
+		}
+
+		for _, square := range searchPieceSquares[test] {
+			if !testSinkShip.Board.IsShip(square, searchShips[test]) {
+				t.Errorf("SinkShip did not set board square to %v as expected: %v", searchShips[test], square)
+			}
+		}
+	}
 }
