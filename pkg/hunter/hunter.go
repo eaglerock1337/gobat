@@ -90,7 +90,7 @@ func (h *Hunter) DeleteShip(s board.Ship) error {
 			return nil
 		}
 	}
-	return errors.New("Ship not found")
+	return errors.New("unable to find Ship to delete")
 }
 
 // GetValidLengths returns a slice of integers for all active ship types.
@@ -193,31 +193,31 @@ func (h *Hunter) ClearShots() {
 func (h Hunter) SearchPiece(sq board.Square, sh board.Ship) (board.Piece, error) {
 	var hits []board.Piece
 	length := sh.GetLength()
+Direction:
 	for _, direction := range directions {
 		let, num := direction[0], direction[1]
 
 		// Check if the piece is in the stack
-		nextSquare, err := board.SquareByValue(sq.Letter+let, sq.Number+num)
-		if err == nil {
+		_, err := board.SquareByValue(sq.Letter+let, sq.Number+num)
+		if err != nil {
 			continue
 		}
 		lastSquare, err := board.SquareByValue(sq.Letter+let*(length-1), sq.Number+num*(length-1))
 		if err != nil {
 			continue
 		}
-		for i := 1; i < length; i++ {
+		for i := 0; i < length; i++ {
 			square, _ := board.SquareByValue(sq.Letter+let*(i), sq.Number+num*(i))
+
 			if !h.InHitStack(square) {
-				continue
+				continue Direction
 			}
 		}
 
 		// Create the piece to add to the list of hits
-		var startSquare board.Square
-		if let < 0 || num < 0 {
+		startSquare := sq
+		if lastSquare.Letter < sq.Letter || lastSquare.Number < sq.Number {
 			startSquare = lastSquare
-		} else {
-			startSquare = nextSquare
 		}
 
 		var horizontal bool
@@ -232,10 +232,10 @@ func (h Hunter) SearchPiece(sq board.Square, sh board.Ship) (board.Piece, error)
 	}
 
 	if len(hits) == 0 {
-		return board.Piece{}, errors.New("No valid piece found in hit stack")
+		return board.Piece{}, errors.New("no valid piece found in hit stack")
 	}
 	if len(hits) > 1 {
-		return board.Piece{}, errors.New("Duplicate pieces found, algorithm failed")
+		return board.Piece{}, errors.New("duplicate pieces found, algorithm failed")
 	}
 	return hits[0], nil
 }

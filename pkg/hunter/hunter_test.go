@@ -80,23 +80,23 @@ func TestBadDeleteShip(t *testing.T) {
 
 	secondResult := testBadDelete.DeleteShip("Cruiser")
 
-	if secondResult.Error() != "Ship not found" {
+	if secondResult.Error() != "unable to find Ship to delete" {
 		t.Errorf("DeleteShip did not error as expected on Ship array: %v", testBadDelete.Ships)
 	}
 }
 
 func TestGetValidLengths(t *testing.T) {
-	expectedResult := []int{5, 4, 3, 2}
+	expectedSearchResults := []int{5, 4, 3, 2}
 	testLengths := NewHunter()
 	result := testLengths.GetValidLengths()
 
-	if len(result) != len(expectedResult) {
-		t.Errorf("GetValidLengths was expected to return a slice of length %v, got %v", len(expectedResult), len(result))
+	if len(result) != len(expectedSearchResults) {
+		t.Errorf("GetValidLengths was expected to return a slice of length %v, got %v", len(expectedSearchResults), len(result))
 	}
 
 	for i, v := range result {
-		if v != expectedResult[i] {
-			t.Errorf("GetValidLengths did not return expected array %v, got %v", expectedResult, result)
+		if v != expectedSearchResults[i] {
+			t.Errorf("GetValidLengths did not return expected array %v, got %v", expectedSearchResults, result)
 		}
 	}
 }
@@ -201,23 +201,101 @@ func TestClearShots(t *testing.T) {
 	}
 }
 
+var searchShips = [5]board.Ship{
+	board.Ship("Destroyer"),
+	board.Ship("Cruiser"),
+	board.Ship("Submarine"),
+	board.Ship("Battleship"),
+	board.Ship("Carrier"),
+}
+
+var searchPieceSquares = [5][]board.Square{
+	{{Letter: 0, Number: 0}, {Letter: 0, Number: 1}},
+	{{Letter: 2, Number: 3}, {Letter: 2, Number: 4}, {Letter: 2, Number: 5}},
+	{{Letter: 6, Number: 1}, {Letter: 5, Number: 1}, {Letter: 4, Number: 1}},
+	{{Letter: 9, Number: 3}, {Letter: 9, Number: 4}, {Letter: 9, Number: 5}, {Letter: 9, Number: 6}},
+	{{Letter: 7, Number: 3}, {Letter: 6, Number: 3}, {Letter: 5, Number: 3}, {Letter: 4, Number: 3}, {Letter: 3, Number: 3}},
+}
+
+var expectedSearchResults = [5]board.Piece{
+	{Type: searchShips[0], Coords: []board.Square{{Letter: 0, Number: 0}, {Letter: 0, Number: 1}}},
+	{Type: searchShips[1], Coords: []board.Square{{Letter: 2, Number: 3}, {Letter: 2, Number: 4}, {Letter: 2, Number: 5}}},
+	{Type: searchShips[2], Coords: []board.Square{{Letter: 4, Number: 1}, {Letter: 5, Number: 1}, {Letter: 6, Number: 1}}},
+	{Type: searchShips[3], Coords: []board.Square{{Letter: 9, Number: 3}, {Letter: 9, Number: 4}, {Letter: 9, Number: 5}, {Letter: 9, Number: 6}}},
+	{Type: searchShips[4], Coords: []board.Square{{Letter: 3, Number: 3}, {Letter: 4, Number: 3}, {Letter: 5, Number: 3}, {Letter: 6, Number: 3}, {Letter: 7, Number: 3}}},
+}
+
 func TestSearchPiece(t *testing.T) {
-	t.Skip("Skipping test due to function needing debugging.")
+	for test, ship := range searchShips {
+		testSearchPiece := NewHunter()
+		numSquares := len(searchPieceSquares[test])
 
-	firstShot := board.Square{Letter: 0, Number: 0}
-	secondShot := board.Square{Letter: 0, Number: 1}
+		for _, square := range searchPieceSquares[test] {
+			testSearchPiece.AddShot(square)
+			testSearchPiece.AddHitStack(square)
+		}
 
-	testSearchPiece := NewHunter()
-	testSearchPiece.AddShot(firstShot)
-	testSearchPiece.AddHitStack(firstShot)
+		result, err := testSearchPiece.SearchPiece(searchPieceSquares[test][numSquares-1], ship)
+		if err != nil {
+			t.Errorf("SearchPiece failed and returned an error: %v", err)
+		}
 
-	result, err := testSearchPiece.SearchPiece(secondShot, "Destroyer")
-	if err != nil {
-		t.Errorf("SearchPiece failed and returned an error: %v", err)
+		if result.Type.GetType() != expectedSearchResults[test].Type.GetType() {
+			t.Errorf("SearchPiece did not return ship type %v as expected, got %v", result.Type, expectedSearchResults[test].Type)
+		}
+
+		if result.Coords[0] != expectedSearchResults[test].Coords[0] || result.Coords[1] != expectedSearchResults[test].Coords[1] {
+			t.Errorf("SearchPiece did not return result %v as expected, got %v", expectedSearchResults[test], result)
+		}
 	}
+}
 
-	expectedResult, _ := board.NewPiece(board.Ship("Destroyer"), board.Square{Letter: 0, Number: 0}, true)
-	if result.Coords[0] != expectedResult.Coords[0] || result.Coords[1] != expectedResult.Coords[1] {
-		t.Errorf("SearchPiece did not return result %v as expected, got %v", result, expectedResult)
+var badSearchSquares = [5]board.Square{
+	{Letter: 6, Number: 4},
+	{Letter: 3, Number: 3},
+	{Letter: 7, Number: 1},
+	{Letter: 9, Number: 2},
+	{Letter: 3, Number: 8},
+}
+
+func TestBadSearchPiece(t *testing.T) {
+	for test := range badSearchSquares {
+		testBadSearchPiece := NewHunter()
+		for _, square := range searchPieceSquares[test] {
+			testBadSearchPiece.AddShot(square)
+			testBadSearchPiece.AddHitStack(square)
+		}
+
+		result, err := testBadSearchPiece.SearchPiece(badSearchSquares[test], searchShips[test])
+
+		if err == nil {
+			t.Errorf("Error expected for search of %v, returned %v instead", badSearchSquares[test], result)
+		}
 	}
+}
+
+var dupeSearchPieceSquares = [5][]board.Square{
+	{{Letter: 0, Number: 2}, {Letter: 0, Number: 0}, {Letter: 0, Number: 1}},
+	{{Letter: 2, Number: 3}, {Letter: 2, Number: 4}, {Letter: 2, Number: 6}, {Letter: 2, Number: 7}, {Letter: 2, Number: 5}},
+	{{Letter: 6, Number: 1}, {Letter: 5, Number: 1}, {Letter: 2, Number: 1}, {Letter: 3, Number: 1}, {Letter: 4, Number: 1}},
+	{{Letter: 9, Number: 3}, {Letter: 9, Number: 4}, {Letter: 9, Number: 5}, {Letter: 9, Number: 7}, {Letter: 9, Number: 8}, {Letter: 9, Number: 9}, {Letter: 9, Number: 6}},
+	{{Letter: 8, Number: 3}, {Letter: 7, Number: 3}, {Letter: 6, Number: 3}, {Letter: 5, Number: 3}, {Letter: 3, Number: 3}, {Letter: 2, Number: 3}, {Letter: 1, Number: 3}, {Letter: 0, Number: 3}, {Letter: 4, Number: 3}},
+}
+
+func TestDupeSearchPiece(t *testing.T) {
+	for test, ship := range searchShips {
+		testSearchPiece := NewHunter()
+		numSquares := len(dupeSearchPieceSquares[test])
+
+		for _, square := range dupeSearchPieceSquares[test] {
+			testSearchPiece.AddShot(square)
+			testSearchPiece.AddHitStack(square)
+		}
+
+		result, err := testSearchPiece.SearchPiece(dupeSearchPieceSquares[test][numSquares-1], ship)
+		if err == nil {
+			t.Errorf("TestDupeSearchPiece failed to error out: %v", result)
+		}
+	}
+	// testSearchPiece.Dat
 }
