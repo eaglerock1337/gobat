@@ -425,3 +425,148 @@ func TestDestroy(t *testing.T) {
 		}
 	}
 }
+
+func TestTurnMiss(t *testing.T) {
+	testTurnMiss := NewHunter()
+	square, _ := board.SquareByString("E5")
+	err := testTurnMiss.Turn(square, "Miss")
+
+	if err != nil {
+		t.Errorf("Turn returned an unexpected error: %v", err)
+	}
+
+	if testTurnMiss.Turns != 1 {
+		t.Errorf("Turn did not update the number of turns: %v", testTurnMiss.Turns)
+	}
+
+	if testTurnMiss.Board.GetString(square) != "Miss" {
+		t.Errorf("Turn did not set square %v to miss, got %v instead", square, testTurnMiss.Board.GetString(square))
+	}
+
+	if !testTurnMiss.SeekMode {
+		t.Errorf("Turn did not keep seek mode after a miss, got %v instead", testTurnMiss.SeekMode)
+	}
+
+	if len(testTurnMiss.HitStack) != 0 {
+		t.Errorf("Turn added hit to stack unexpectedly, got %v instead", testTurnMiss.HitStack)
+	}
+
+	if len(testTurnMiss.Ships) != 5 {
+		t.Errorf("Turn changed number of ships unexpectedly, got %v instead", testTurnMiss.Ships)
+	}
+
+	if testTurnMiss.HeatMap[square.Letter][square.Number] != 0 {
+		t.Errorf("HeatMap did not remove square %v, got value %v instead %v", square, testTurnMiss.HeatMap[square.Letter][square.Number], testTurnMiss.GetValidLengths())
+	}
+}
+
+func TestTurnHit(t *testing.T) {
+	testTurnHit := NewHunter()
+	square, _ := board.SquareByString("C4")
+	err := testTurnHit.Turn(square, "Hit")
+
+	if err != nil {
+		t.Errorf("Turn returned an unexpected error: %v", err)
+	}
+
+	if testTurnHit.Turns != 1 {
+		t.Errorf("Turn did not update the number of turns: %v", testTurnHit.Turns)
+	}
+
+	if testTurnHit.Board.GetString(square) != "Hit" {
+		t.Errorf("Turn did not set square %v to hit, got %v instead", square, testTurnHit.Board.GetString(square))
+	}
+
+	if testTurnHit.SeekMode {
+		t.Errorf("Turn did not set mode to hit after destroy, got %v instead", testTurnHit.SeekMode)
+	}
+
+	if len(testTurnHit.HitStack) != 1 {
+		t.Errorf("Turn did not add hit to HitStack, got %v instead", testTurnHit.HitStack)
+	}
+
+	if len(testTurnHit.Ships) != 5 {
+		t.Errorf("Turn changed number of ships unexpectedly, got %v instead", testTurnHit.Ships)
+	}
+
+	if testTurnHit.HeatMap[square.Letter][square.Number] == 0 {
+		t.Errorf("HeatMap removed square %v unexpectedly, got value %v instead %v", square, testTurnHit.HeatMap[square.Letter][square.Number], testTurnHit.GetValidLengths())
+	}
+}
+
+func TestTurnSink(t *testing.T) {
+	testTurnSink := NewHunter()
+
+	squares := new([3]board.Square)
+	squares[0], _ = board.SquareByString("C4")
+	squares[1], _ = board.SquareByString("C5")
+	squares[2], _ = board.SquareByString("C6")
+
+	testTurnSink.Turn(squares[0], "Hit")
+	testTurnSink.Turn(squares[1], "Hit")
+	err := testTurnSink.Turn(squares[2], "Submarine")
+
+	if err != nil {
+		t.Errorf("Turn returned an unexpected error: %v", err)
+	}
+
+	if testTurnSink.Turns != 3 {
+		t.Errorf("Turn did not update the number of turns: %v", testTurnSink.Turns)
+	}
+
+	if !testTurnSink.SeekMode {
+		t.Errorf("Turn did not set mode to seek after sinking, got %v instead", testTurnSink.SeekMode)
+	}
+
+	if len(testTurnSink.HitStack) != 0 {
+		t.Errorf("Turn did not empty HitStack after a sinking, got %v instead", testTurnSink.HitStack)
+	}
+
+	if len(testTurnSink.Ships) != 4 {
+		t.Errorf("Turn changed number of ships unexpectedly, got %v instead", testTurnSink.Ships)
+	}
+
+	for _, square := range squares {
+		if testTurnSink.Board.GetString(square) != "Submarine" {
+			t.Errorf("Turn did not set square %v to submarine, got %v instead", square, testTurnSink.Board.GetString(square))
+		}
+	}
+}
+
+func TestTurnErrors(t *testing.T) {
+	testTurnErrors := NewHunter()
+	square, _ := board.SquareByString("F5")
+	err := testTurnErrors.Turn(square, "Submarine")
+
+	if err == nil {
+		t.Errorf("Turn did not error with a HitStack miss: %v", testTurnErrors)
+	}
+
+	err = testTurnErrors.Turn(square, "Invalid")
+
+	if err == nil {
+		t.Errorf("Turn did not error with an invalid response: %v", testTurnErrors)
+	}
+
+	err = testTurnErrors.Turn(square, "Empty")
+
+	if err == nil {
+		t.Errorf("Turn did not error with an empty response: %v", testTurnErrors)
+	}
+
+	if testTurnErrors.Turns != 0 {
+		t.Errorf("Turn updated the turn number unexpectedly after errors: %v", testTurnErrors.Turns)
+	}
+
+	if !testTurnErrors.SeekMode {
+		t.Errorf("Turn did not return sink mode after errors, got %v instead", testTurnErrors.SeekMode)
+	}
+
+	if len(testTurnErrors.HitStack) != 0 {
+		t.Errorf("Turn did not empty HitStack after a sinking, got %v instead", testTurnErrors.HitStack)
+	}
+
+	if len(testTurnErrors.Ships) != 5 {
+		t.Errorf("Turn changed number of ships unexpectedly, got %v instead", testTurnErrors.Ships)
+	}
+}

@@ -312,22 +312,30 @@ func (h *Hunter) Destroy() {
 func (h *Hunter) Turn(s board.Square, result string) error {
 	err := h.Board.SetString(s, result)
 	if err != nil {
-		return errors.New("Turn failed as the result was invalid")
+		return fmt.Errorf("Turn failed as the result was invalid: %v", err)
 	}
 
-	ship, _ := board.NewShip(result)
+	origSeekMode := h.SeekMode
+
 	if h.Board.IsEmpty(s) {
 		return errors.New("Turn failed as it was given an empty result")
-	}
-
-	if h.Board.IsSunk(s) {
-		h.SinkShip(s, ship)
-		h.SeekMode = len(h.HitStack) == 0
 	}
 
 	if h.Board.IsHit(s) {
 		h.AddHitStack(s)
 		h.SeekMode = false
+	}
+
+	if h.Board.IsSunk(s) {
+		ship, _ := board.NewShip(result)
+		err := h.SinkShip(s, ship)
+		if err != nil {
+			h.SeekMode = origSeekMode
+			h.Board.SetString(s, "Empty")
+			h.DelHitStack(s)
+			return fmt.Errorf("Turn failed due to SinkShip error: %v", err)
+		}
+		h.SeekMode = len(h.HitStack) == 0
 	}
 
 	if h.Board.IsMiss(s) {

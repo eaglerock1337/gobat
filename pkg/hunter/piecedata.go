@@ -34,7 +34,7 @@ func GenPieceData(ship board.Ship) PieceData {
 func (p *PieceData) Remove(pos int) error {
 	lastPos := len(*p) - 1
 	if pos < 0 || pos > lastPos {
-		return errors.New("Position to remove is out of bounds")
+		return errors.New("position to remove is out of bounds")
 	}
 
 	(*p)[pos] = (*p)[lastPos]
