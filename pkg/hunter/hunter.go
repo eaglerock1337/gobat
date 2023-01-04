@@ -250,17 +250,17 @@ func (h *Hunter) SinkShip(sq board.Square, sh board.Ship) error {
 		return fmt.Errorf("SinkShip failed due to SearchPiece not finding a piece: %v", err)
 	}
 
+	err = h.DeleteShip(sh)
+	if err != nil {
+		return fmt.Errorf("SinkShip failed due to DeleteShip returning error: %v", err)
+	}
+
 	for _, square := range piece.Coords {
 		h.DelHitStack(square)
 	}
 
 	for _, length := range h.GetValidLengths() {
 		h.Data[length].DeletePiece(piece)
-	}
-
-	err = h.DeleteShip(sh)
-	if err != nil {
-		return fmt.Errorf("SinkShip failed due to DeleteShip returning error: %v", err)
 	}
 
 	h.Board.SetPiece(piece)

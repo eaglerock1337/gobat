@@ -330,3 +330,50 @@ func TestSinkShip(t *testing.T) {
 		}
 	}
 }
+
+func TestFailedSinkShip(t *testing.T) {
+	for test, ship := range searchShips {
+		testFailedSinkShip := NewHunter()
+
+		for _, square := range searchPieceSquares[test] {
+			testFailedSinkShip.AddShot(square)
+			testFailedSinkShip.AddHitStack(square)
+		}
+
+		testFailedSinkShip.DeleteShip(ship)
+
+		err := testFailedSinkShip.SinkShip(badSearchSquares[test], ship)
+
+		if err == nil {
+			t.Errorf("SinkShip did not error as expected with missing ship: %v", testFailedSinkShip)
+		}
+	}
+}
+
+func TestDupeSinkShip(t *testing.T) {
+	for test, ship := range searchShips {
+		testDupeSinkShip := NewHunter()
+		numSquares := len(searchPieceSquares[test])
+
+		for _, square := range searchPieceSquares[test] {
+			testDupeSinkShip.AddShot(square)
+			testDupeSinkShip.AddHitStack(square)
+		}
+
+		err := testDupeSinkShip.DeleteShip(ship)
+
+		if err != nil {
+			t.Errorf("DupeSinkShip not working due to unexpected error: %v", err)
+		}
+
+		err = testDupeSinkShip.SinkShip(searchPieceSquares[test][numSquares-1], ship)
+
+		if err == nil {
+			t.Errorf("SinkShip did not error as expected with missing ship: %v", testDupeSinkShip)
+		}
+	}
+}
+
+func TestSeek(t *testing.T) {
+	
+}
