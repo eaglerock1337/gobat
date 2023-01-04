@@ -375,5 +375,53 @@ func TestDupeSinkShip(t *testing.T) {
 }
 
 func TestSeek(t *testing.T) {
-	
+	testSeek := NewHunter()
+	testSeek.ClearShots()
+	testSeek.Seek()
+
+	if len(testSeek.Shots) != 5 {
+		t.Errorf("Shots array was not populated as expected: %v", testSeek.Shots)
+	}
+
+	for x := 0; x < 10; x++ {
+		for y := 0; y < 10; y++ {
+			if testSeek.HeatMap[x][y] == 0 {
+				square, _ := board.SquareByValue(x, y)
+				t.Errorf("HeatMap returned zero data at %v: %v", square.PrintSquare(), testSeek.HeatMap[x][y])
+			}
+		}
+	}
+}
+
+func TestDestroy(t *testing.T) {
+	testDestroy := NewHunter()
+	square, _ := board.SquareByString("E5")
+	square2, _ := board.SquareByString("D6")
+
+	testDestroy.AddHitStack(square)
+	testDestroy.AddHitStack(square2)
+
+	testDestroy.SeekMode = false
+	testDestroy.Destroy()
+
+	if len(testDestroy.Shots) != 5 {
+		t.Errorf("Destroy did not return 5 shots as expected: %v", testDestroy.Shots)
+	}
+
+	for _, hit := range testDestroy.HitStack {
+		for _, shot := range testDestroy.Shots {
+			if hit.Letter == shot.Letter && hit.Number == shot.Number {
+				t.Errorf("Destroy returned shot %v present in hitstack: %v", shot, testDestroy.HitStack)
+			}
+		}
+	}
+
+	for x := 0; x < 10; x++ {
+		for y := 0; y < 10; y++ {
+			if testDestroy.HeatMap[x][y] == 0 {
+				square, _ := board.SquareByValue(x, y)
+				t.Errorf("HeatMap returned zero data at %v: %v", square.PrintSquare(), testDestroy.HeatMap[x][y])
+			}
+		}
+	}
 }

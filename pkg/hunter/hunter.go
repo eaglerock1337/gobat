@@ -156,15 +156,15 @@ func (h *Hunter) Refresh() {
 // will only get accepted if in the top 5 Shots.
 func (h *Hunter) AddShot(s board.Square) {
 	score := h.HeatMap[s.Letter][s.Number]
-	// Only try to add the value if it actually registered any hits
-	if score > 0 {
+	// Only try to add the value if not in the hitstack and if it registered a score
+	if score > 0 && !h.InHitStack(s) {
 		length := len(h.Shots)
 
 		// Only add if the score is high enough or if the list isn't full yet
 		if length < 5 || score > h.HeatMap.GetSquare(h.Shots[length-1]) {
-			target := length
+			target := length - 1
 			if length > 0 {
-				for k := length - 1; k >= 0; k-- {
+				for k := 0; k < length-1; k++ {
 					if score >= h.HeatMap.GetSquare(h.Shots[k]) {
 						target = k
 						break
@@ -172,7 +172,10 @@ func (h *Hunter) AddShot(s board.Square) {
 				}
 			}
 
-			h.Shots = append(h.Shots, s) // Add to empty array or make space
+			if length != 5 {
+				h.Shots = append(h.Shots, s) // Add to empty array or make space
+			}
+
 			if length > 0 {
 				copy(h.Shots[target+1:], h.Shots[target:length])
 				h.Shots[target] = s
@@ -288,14 +291,13 @@ func (h *Hunter) Destroy() {
 	h.ClearShots()
 
 	for _, hit := range h.HitStack {
-	Adjacent:
 		for _, direction := range directions {
 			let, num := direction[0], direction[1]
 			square, err := board.SquareByValue(hit.Letter+let, hit.Number+num)
-			if err != nil {
+			if err == nil {
 				for _, shot := range h.Shots {
-					if shot == square {
-						continue Adjacent
+					if shot.Letter == square.Letter && shot.Number == square.Number {
+						continue
 					}
 				}
 				h.AddShot(square)
