@@ -18,12 +18,19 @@ import (
 )
 
 // Display is a custom type of tcell.Screen with custom gobat-related methods
-type Display tcell.Screen
+type Display struct {
+	Screen tcell.Screen // A tcell.Screen instance driving the ncurses display
+}
 
 func NewDisplay() Display {
 	var newDisplay Display
 
 	return newDisplay
+}
+
+// Run starts the main event loop of the application
+func (d Display) Run() {
+	fmt.Printf("d: %v\n", d)
 }
 
 // This is literally just here to stop Go from deleting imports I'll need later
