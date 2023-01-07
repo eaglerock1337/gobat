@@ -315,11 +315,11 @@ func (h *Hunter) Turn(s board.Square, result string) error {
 		return fmt.Errorf("Turn failed as the result was invalid: %v", err)
 	}
 
-	origSeekMode := h.SeekMode
-
 	if h.Board.IsEmpty(s) {
 		return errors.New("Turn failed as it was given an empty result")
 	}
+
+	origSeekMode := h.SeekMode // save state in case of SinkShip error below
 
 	if h.Board.IsHit(s) {
 		h.AddHitStack(s)
@@ -329,7 +329,7 @@ func (h *Hunter) Turn(s board.Square, result string) error {
 	if h.Board.IsSunk(s) {
 		ship, _ := board.NewShip(result)
 		err := h.SinkShip(s, ship)
-		if err != nil {
+		if err != nil { // undo changes from recording a hit before erroring out
 			h.SeekMode = origSeekMode
 			h.Board.SetString(s, "Empty")
 			h.DelHitStack(s)

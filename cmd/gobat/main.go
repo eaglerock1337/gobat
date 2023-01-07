@@ -1,1 +1,1 @@
-package gobat
+package main
