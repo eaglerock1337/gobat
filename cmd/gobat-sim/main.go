@@ -1,4 +1,4 @@
-package gobat-sim
+package main
 
 import "fmt"
 

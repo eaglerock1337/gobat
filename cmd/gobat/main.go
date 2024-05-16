@@ -1,4 +1,4 @@
-package gobat
+package main
 
 import (
 	"log"
