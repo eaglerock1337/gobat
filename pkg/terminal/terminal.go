@@ -6,30 +6,46 @@ contains the initialized tcell ncurses window as well as necessary member
 functions for interfacing with the ncurses environment during use of the program.
 */
 
-package display
+package terminal
 
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/eaglerock1337/gobat/pkg/board"
 	"github.com/eaglerock1337/gobat/pkg/hunter"
-	"github.com/gdamore/tcell/v2"
+	"github.com/jroimartin/gocui"
 )
 
 // Display is a custom type of tcell.Screen with custom gobat-related methods
-type Display struct {
-	Screen tcell.Screen // A tcell.Screen instance driving the ncurses display
+type Terminal struct {
+	Screen *gocui.Gui // a gocui
 }
 
-func NewDisplay() Display {
-	var newDisplay Display
+func SetDisplayLayout(g *gocui.Gui) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		fmt.Fprintln(v, "Hello, Gocui!")
+	}
+	return nil
+}
 
-	return newDisplay
+// NewTerminal instantiates a terminal struct including a gocui screen
+func NewTerminal() Terminal {
+	scr, err := gocui.NewGui(gocui.OutputNormal)
+	if err != nil {
+		log.Panicln(err)
+	}
+	newTerminal := Terminal{scr}
+	return newTerminal
 }
 
 // Run starts the main event loop of the application
-func (d Display) Run() {
+func (d Terminal) Run() {
 	fmt.Printf("d: %v\n", d)
 }
 
