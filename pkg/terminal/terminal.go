@@ -23,7 +23,8 @@ type Terminal struct {
 	Screen *gocui.Gui // a gocui
 }
 
-func SetDisplayLayout(g *gocui.Gui) error {
+// MenuLayout provides the gocui manager function for the main menu
+func MenuLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 	if v, err := g.SetView("hello", maxX/2-7, maxY/2, maxX/2+7, maxY/2+2); err != nil {
 		if err != gocui.ErrUnknownView {
@@ -34,12 +35,28 @@ func SetDisplayLayout(g *gocui.Gui) error {
 	return nil
 }
 
+// Quit terminates the screen and event loop
+func Quit(g *gocui.Gui, v *gocui.View) error {
+	return gocui.ErrQuit
+}
+
 // NewTerminal instantiates a terminal struct including a gocui screen
 func NewTerminal() Terminal {
 	scr, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		log.Panicln(err)
 	}
+
+	scr.SetManagerFunc(MenuLayout)
+
+	if err := scr.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, Quit); err != nil {
+		log.Panicln(err)
+	}
+
+	if err := scr.SetKeybinding("", 'q', gocui.ModNone, Quit); err != nil {
+		log.Panicln(err)
+	}
+
 	newTerminal := Terminal{scr}
 	return newTerminal
 }

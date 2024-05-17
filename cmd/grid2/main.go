@@ -7,20 +7,16 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+const (
+	gridSize     = 10
+	squareWidth  = 4
+	squareHeight = 2
+)
+
 var (
-	gridSize    = 10
-	grid        = [10][10]string{}
 	currentView = "menu"
 	lastClicked = ""
 )
-
-func initGrid() {
-	for i := 0; i < gridSize; i++ {
-		for j := 0; j < gridSize; j++ {
-			grid[i][j] = fmt.Sprintf("%c%d", 'A'+i, j+1)
-		}
-	}
-}
 
 func layout(g *gocui.Gui) error {
 	if currentView == "menu" {
@@ -47,19 +43,18 @@ func layoutMenu(g *gocui.Gui) error {
 
 func layoutGrid(g *gocui.Gui) error {
 	maxX, _ := g.Size()
+	gridViewWidth := gridSize * squareWidth
+	gridViewHeight := gridSize * squareHeight
 
-	for i := 0; i < gridSize; i++ {
-		for j := 0; j < gridSize; j++ {
-			viewName := grid[i][j]
-			v, err := g.SetView(viewName, j*4, i*2, j*4+3, i*2+1)
-			if err != nil && err != gocui.ErrUnknownView {
-				return err
-			}
-			v.Title = viewName
+	if v, err := g.SetView("grid", 0, 0, gridViewWidth+1, gridViewHeight+1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
 		}
+		v.Title = "Battleship Grid"
+		drawGrid(v)
 	}
 
-	if v, err := g.SetView("side", maxX-20, 0, maxX-1, 10); err != nil {
+	if v, err := g.SetView("side", gridViewWidth+2, 0, maxX-1, 10); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -68,6 +63,24 @@ func layoutGrid(g *gocui.Gui) error {
 	}
 
 	return nil
+}
+
+func drawGrid(v *gocui.View) {
+	for i := 0; i < gridSize; i++ {
+		for j := 0; j < gridSize; j++ {
+			cell := fmt.Sprintf("%c%d", 'A'+i, j+1)
+			fmt.Fprintf(v, "%s", cell)
+			for k := 0; k < squareHeight-1; k++ {
+				fmt.Fprint(v, "\n")
+			}
+			if j < gridSize-1 {
+				fmt.Fprint(v, " ")
+			}
+		}
+		if i < gridSize-1 {
+			fmt.Fprint(v, "\n")
+		}
+	}
 }
 
 func switchToGrid(g *gocui.Gui, v *gocui.View) error {
@@ -85,14 +98,22 @@ func switchToMenu(g *gocui.Gui, v *gocui.View) error {
 }
 
 func mouseClick(g *gocui.Gui, v *gocui.View) error {
-	viewName := v.Name()
-	lastClicked = viewName
-	sideView, err := g.View("side")
-	if err != nil {
-		return err
+	if v.Name() != "grid" {
+		return nil
 	}
-	sideView.Clear()
-	fmt.Fprintf(sideView, "Last clicked: %s\n", lastClicked)
+
+	x, y := v.Cursor()
+	col := x / squareWidth
+	row := y / squareHeight
+	if col < gridSize && row < gridSize {
+		lastClicked = fmt.Sprintf("%c%d", 'A'+row, col+1)
+		sideView, err := g.View("side")
+		if err != nil {
+			return err
+		}
+		sideView.Clear()
+		fmt.Fprintf(sideView, "Last clicked: %s\n", lastClicked)
+	}
 	return nil
 }
 
@@ -109,13 +130,8 @@ func keybindingsMenu(g *gocui.Gui) error {
 }
 
 func keybindingsGrid(g *gocui.Gui) error {
-	for i := 0; i < gridSize; i++ {
-		for j := 0; j < gridSize; j++ {
-			viewName := grid[i][j]
-			if err := g.SetKeybinding(viewName, gocui.MouseLeft, gocui.ModNone, mouseClick); err != nil {
-				return err
-			}
-		}
+	if err := g.SetKeybinding("grid", gocui.MouseLeft, gocui.ModNone, mouseClick); err != nil {
+		return err
 	}
 	if err := g.SetKeybinding("", 'm', gocui.ModNone, switchToMenu); err != nil {
 		return err
@@ -137,8 +153,6 @@ func updateKeybindings(g *gocui.Gui) error {
 }
 
 func main() {
-	initGrid()
-
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		log.Panicln(err)
