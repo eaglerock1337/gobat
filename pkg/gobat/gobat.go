@@ -11,10 +11,21 @@ package gobat
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/eaglerock1337/gobat/pkg/board"
 	"github.com/eaglerock1337/gobat/pkg/hunter"
 	"github.com/jroimartin/gocui"
+)
+
+var (
+	minX     = 71
+	minY     = 31
+	menuText = []string{
+		"H - Start Hunting",
+		"R - Reset Hunter",
+		"Q - Quit Gobat",
+	}
 )
 
 // Gobat provides all data required for interactive hunter
@@ -31,6 +42,7 @@ func NewGobat() Gobat {
 	}
 
 	screen.SetManagerFunc(MenuLayout)
+	screen.SetCurrentView("menu")
 	screen.Mouse = true
 
 	if err := SetKeyBindings(screen); err != nil {
@@ -61,13 +73,14 @@ func AnnoyingErrors() {
 func GridLayout(g *gocui.Gui) error {
 	vertLine := "    |    |    |    |    |    |    |    |    |"
 	horLine := "-------------------------------------------------"
+	maxX, maxY := g.Size()
 
-	if v, err := g.SetView("grid", 0, 50, 0, 30); err != nil {
+	if v, err := g.SetView("grid", 0, 0, 50, 30); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
 		v.Title = "Battleship Grid"
-		for i := 0; i < 30; i++ {
+		for i := 1; i <= 30; i++ {
 			line := vertLine
 			if i%3 == 0 {
 				line = horLine
@@ -75,37 +88,79 @@ func GridLayout(g *gocui.Gui) error {
 			fmt.Fprintln(v, line)
 		}
 	}
+
+	if v, err := g.SetView("side", 51, 0, 70, 30); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	} else {
+		v.Title = "Controls"
+		v.Wrap = true
+		v.Clear()
+		fmt.Fprintln(v, "Side view stuff go here.")
+	}
+
+	if _, err := g.SetCurrentView("side"); err != nil {
+		return err
+	}
+
+	if v, err := g.SetView("error", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Title = "Screen too small"
+	} else {
+		if maxX < minX || maxY < minY {
+			v.BgColor = gocui.ColorRed
+			if v, err := g.SetViewOnTop("error"); err == nil {
+				v.Clear()
+				fmt.Fprintf(v, "Min Size: %dx%d\n", minX, minY)
+				fmt.Fprintf(v, "Cur Size: %dx%d\n", maxX, maxY)
+				fmt.Fprintln(v, "M - Main Menu")
+				fmt.Fprintln(v, "Q - Quit")
+			} else {
+				return err
+			}
+		} else {
+			if _, err := g.SetViewOnBottom("error"); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
 // MenuLayout provides the gocui manager function for the main menu
 func MenuLayout(g *gocui.Gui) error {
-	minX, minY := 71, 31
 	maxX, maxY := g.Size()
-	if v, err := g.SetView("menu", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-		v.Title = fmt.Sprintf("Gobat Hunter - %dx%d", maxX, maxY)
-		menuText := []string{
-			"H - Start Hunting",
-			"R - Reset Hunter",
-			"Q - Quit Gobat",
-			"",
-		}
-		for _, line := range menuText {
-			fmt.Fprintln(v, line)
-		}
-		fmt.Fprintf(v, "Min Size: %dx%d\n", minX, minY)
-	} else {
-		v.Highlight = false
+	if v, err := g.SetView("menubg", 0, 0, maxX-1, maxY-1); err == nil {
 		if maxX < minX || maxY < minY {
 			v.BgColor = gocui.ColorRed
 		} else {
 			v.BgColor = gocui.ColorDefault
 		}
-		v.Title = fmt.Sprintf("Gobat Hunter - %dx%d", maxX, maxY)
+	} else {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
 	}
+
+	if v, err := g.SetView("menu", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Title = "Gobat Hunter"
+	} else {
+		v.Clear()
+		for _, line := range menuText {
+			fmt.Fprintln(v, line)
+		}
+		fmt.Fprintf(v, "\nMin Size: %dx%d", minX, minY)
+		fmt.Fprintf(v, "\nCur Size: %dx%d", maxX, maxY)
+		g.SetCurrentView("menu")
+	}
+
 	return nil
 }
 
@@ -116,13 +171,22 @@ func Quit(g *gocui.Gui, v *gocui.View) error {
 
 // SwitchToGrid switches to grid view
 func SwitchToGrid(g *gocui.Gui, v *gocui.View) error {
-	g.SetManagerFunc(GridLayout)
+	maxX, maxY := g.Size()
+	if maxX < minX || maxY < minY {
+		v.BgColor = gocui.ColorRed
+		time.Sleep(time.Second / 10)
+		v.BgColor = gocui.ColorDefault
+	} else {
+		g.SetManagerFunc(GridLayout)
+		SetKeyBindings(g)
+	}
 	return nil
 }
 
 // SwitchToMenu switches to menu view
 func SwitchToMenu(g *gocui.Gui, v *gocui.View) error {
 	g.SetManagerFunc(MenuLayout)
+	SetKeyBindings(g)
 	return nil
 }
 
@@ -131,15 +195,15 @@ func SetKeyBindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, Quit); err != nil {
 		return err
 	}
-
 	if err := g.SetKeybinding("", 'q', gocui.ModNone, Quit); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("", 'm', gocui.ModNone, SwitchToMenu); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("menu", 'h', gocui.ModNone, SwitchToGrid); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("grid", 'm', gocui.ModNone, SwitchToMenu); err != nil {
-		return err
-	}
+
 	return nil
 }
