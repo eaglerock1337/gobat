@@ -72,17 +72,13 @@ func enterKey(g *gocui.Gui, v *gocui.View) error {
 	default:
 		gridEnterKeySelection(g, v)
 	}
-
-	// _, cy := v.Cursor()
-	// item := menus[currentMenu].Items[cy]
-	// return handleSelection(g, item)
 	return nil
 }
 
 // mouseClick handles mouse click input
 func mouseClick(g *gocui.Gui, v *gocui.View) error {
 	switch v.Name() {
-	case "error", "grid", "stats":
+	case "error", "grid", "menubg", "stats":
 		return nil
 	case "menu":
 		menuMouseClickSelection(g, v)

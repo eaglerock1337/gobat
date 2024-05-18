@@ -191,7 +191,7 @@ func refreshSelectView(v *gocui.View) {
 	v.Clear()
 
 	for i, square := range h.Shots {
-		fmt.Fprintf(v, "%d - %s\n", i+1, square.PrintSquare())
+		fmt.Fprintf(v, "%d - %s (%d)\n", i+1, square.PrintSquare(), h.HeatMap.GetSquare(square))
 	}
 	for _, line := range gridControls {
 		fmt.Fprintln(v, line)
