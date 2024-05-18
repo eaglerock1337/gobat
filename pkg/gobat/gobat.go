@@ -18,18 +18,21 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+const (
+	minX  = 71
+	minY  = 31
+	gridX = 50
+)
+
 var (
-	minX     = 71
-	minY     = 31
-	gridX    = 50
-	menuText = []string{
+	h         *hunter.Hunter
+	selectPos = 1
+	menuText  = []string{
 		"H - Start Hunting",
 		"R - Reset Hunter",
 		"Q - Quit Gobat",
 	}
 )
-
-var h *hunter.Hunter
 
 // NewGobat instantiates a gobat struct including a gocui screen and hunter
 func NewTerminal() *gocui.Gui {
@@ -62,7 +65,29 @@ func Run(g *gocui.Gui) {
 	}
 }
 
-// GridLayout provides the gocui manager function for the grid menu
+// RefreshSelectView refreshes the select view in the grid screen
+func RefreshSelectView(v *gocui.View) {
+	v.Clear()
+	for i, square := range h.Shots {
+		fmt.Fprintf(v, "%d - %s\n", i+1, square.PrintSquare())
+	}
+	v.SetCursor(0, selectPos)
+}
+
+// RefreshSquareView refreshes a specific square on the grid screen
+func RefreshSquareView(v *gocui.View) {
+	v.Clear()
+	fmt.Fprintf(v, " %s\n", v.Name())
+	square, _ := board.SquareByString(v.Name())
+	if h.InShots(square) {
+		v.BgColor = gocui.ColorGreen
+	} else {
+		v.BgColor = gocui.ColorDefault
+	}
+	fmt.Fprintf(v, " %d", h.HeatMap.GetSquare(square))
+}
+
+// GridLayout provides the gocui manager function for the grid screen
 func GridLayout(g *gocui.Gui) error {
 	vertLine := "    |    |    |    |    |    |    |    |    |"
 	horLine := "-------------------------------------------------"
@@ -91,19 +116,10 @@ func GridLayout(g *gocui.Gui) error {
 					return err
 				}
 				v.Frame = false
+				v.SelBgColor = gocui.ColorWhite
+				v.SelFgColor = gocui.ColorBlack
 			} else {
-				v.Clear()
-				fmt.Fprintf(v, " %s\n", viewName)
-				square, err := board.SquareByString(viewName)
-				if h.InShots(square) {
-					v.BgColor = gocui.ColorGreen
-				} else {
-					v.BgColor = gocui.ColorDefault
-				}
-				if err != nil {
-					return err
-				}
-				fmt.Fprintf(v, " %d", h.HeatMap.GetSquare(square))
+				RefreshSquareView(v)
 			}
 		}
 	}
@@ -132,22 +148,18 @@ func GridLayout(g *gocui.Gui) error {
 			if len(h.HitStack) == 0 {
 				fmt.Fprint(v, "  Empty")
 			}
-
 		}
 
 		if v, err := g.SetView("select", gridX+1, 2*minY/3+1, maxX-1, minY-1); err != nil {
 			if err != gocui.ErrUnknownView {
 				return err
 			}
-		} else {
 			v.Title = "Select Option"
 			v.Wrap = true
 			v.Highlight = true
-			v.Clear()
-			for i, square := range h.Shots {
-				fmt.Fprintf(v, "%d - %s\n", i+1, square.PrintSquare())
-			}
-			v.SetCursor(0, 0)
+			v.SelBgColor = gocui.ColorWhite
+			v.SelFgColor = gocui.ColorBlack
+			RefreshSelectView(v)
 		}
 
 		if _, err := g.SetCurrentView("select"); err != nil {
@@ -226,6 +238,7 @@ func SwitchToGrid(g *gocui.Gui, v *gocui.View) error {
 	if minX <= maxX && minY <= maxY {
 		g.SetManagerFunc(GridLayout)
 		SetKeyBindings(g)
+		selectPos = 0
 	}
 	return nil
 }
@@ -234,6 +247,26 @@ func SwitchToGrid(g *gocui.Gui, v *gocui.View) error {
 func SwitchToMenu(g *gocui.Gui, v *gocui.View) error {
 	g.SetManagerFunc(MenuLayout)
 	SetKeyBindings(g)
+	return nil
+}
+
+// SelectCursorDown handles the cursor down keybind in the select view
+func SelectCursorDown(g *gocui.Gui, v *gocui.View) error {
+	selectPos++
+	if selectPos > 4 {
+		selectPos = 4
+	}
+	RefreshSelectView(v)
+	return nil
+}
+
+// SelectCursorUp handles the cursor down keybind in the select view
+func SelectCursorUp(g *gocui.Gui, v *gocui.View) error {
+	selectPos--
+	if selectPos < 0 {
+		selectPos = 0
+	}
+	RefreshSelectView(v)
 	return nil
 }
 
@@ -251,6 +284,14 @@ func SetKeyBindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("menu", 'h', gocui.ModNone, SwitchToGrid); err != nil {
 		return err
 	}
-
+	if err := g.SetKeybinding("select", gocui.KeyArrowDown, gocui.ModNone, SelectCursorDown); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("select", gocui.KeyArrowUp, gocui.ModNone, SelectCursorUp); err != nil {
+		return err
+	}
+	// if err := g.SetKeybinding("select", gocui.KeyEnter, gocui.ModNone, SelectOption); err != nil {
+	// 	return err
+	// }
 	return nil
 }
