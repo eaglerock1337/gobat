@@ -5,8 +5,8 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
-// CursorDown handles the gocui cursor down keybind
-func CursorDown(g *gocui.Gui, v *gocui.View) error {
+// cursorDown handles the gocui cursor down keybind
+func cursorDown(g *gocui.Gui, v *gocui.View) error {
 	switch currentView {
 	case "error", "grid", "menu", "menubg", "stats":
 		return nil
@@ -15,7 +15,7 @@ func CursorDown(g *gocui.Gui, v *gocui.View) error {
 		if selectPos > 4 {
 			selectPos = 4
 		}
-		RefreshSelectView(v)
+		refreshSelectView(v)
 	default:
 		curSquare, _ := board.SquareByString(currentView)
 		newSquare, err := board.SquareByValue(curSquare.Letter, curSquare.Number+1)
@@ -30,8 +30,8 @@ func CursorDown(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-// CursorUp handles the gocui cursor down keybind
-func CursorUp(g *gocui.Gui, v *gocui.View) error {
+// cursorUp handles the gocui cursor down keybind
+func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	switch currentView {
 	case "error", "grid", "menu", "menubg", "stats":
 		return nil
@@ -40,7 +40,7 @@ func CursorUp(g *gocui.Gui, v *gocui.View) error {
 		if selectPos < 0 {
 			selectPos = 0
 		}
-		RefreshSelectView(v)
+		refreshSelectView(v)
 	default:
 		curSquare, _ := board.SquareByString(currentView)
 		newSquare, err := board.SquareByValue(curSquare.Letter, curSquare.Number-1)
@@ -55,15 +55,15 @@ func CursorUp(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-// CursorLeft handles the gocui cursor left keybind
-func CursorLeft(g *gocui.Gui, v *gocui.View) error {
+// cursorLeft handles the gocui cursor left keybind
+func cursorLeft(g *gocui.Gui, v *gocui.View) error {
 	switch currentView {
 	case "select":
 		currentView = "J10"
 		if _, err := g.SetCurrentView("J10"); err != nil {
 			return err
 		}
-		RefreshSelectView(v)
+		refreshSelectView(v)
 	case "error", "grid", "menu", "menubg", "stats":
 		return nil
 	default:
@@ -79,12 +79,12 @@ func CursorLeft(g *gocui.Gui, v *gocui.View) error {
 			}
 		}
 	}
-	RefreshSquareView(g.CurrentView())
+	refreshSquareView(g.CurrentView())
 	return nil
 }
 
-// CursorRight handles the gocui cursor Right keybind
-func CursorRight(g *gocui.Gui, v *gocui.View) error {
+// cursorRight handles the gocui cursor Right keybind
+func cursorRight(g *gocui.Gui, v *gocui.View) error {
 	switch currentView {
 	case "error", "grid", "menu", "menubg", "select", "stats":
 		return nil
@@ -103,11 +103,11 @@ func CursorRight(g *gocui.Gui, v *gocui.View) error {
 		if _, err := g.SetCurrentView(currentView); err != nil {
 			return err
 		}
-		RefreshSquareView(v)
+		refreshSquareView(v)
 		if currentView == "select" {
-			RefreshSelectView(g.CurrentView())
+			refreshSelectView(g.CurrentView())
 		} else {
-			RefreshSquareView(g.CurrentView())
+			refreshSquareView(g.CurrentView())
 		}
 	}
 	return nil

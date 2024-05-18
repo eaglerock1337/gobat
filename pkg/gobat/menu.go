@@ -12,8 +12,8 @@ var menuText = []string{
 	"Q - Quit Gobat",
 }
 
-// MenuLayout provides the gocui manager function for the main menu
-func MenuLayout(g *gocui.Gui) error {
+// menuLayout provides the gocui manager function for the main menu
+func menuLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
 	if v, err := g.SetView("menubg", 0, 0, maxX-1, maxY-1); err != nil {
@@ -46,11 +46,16 @@ func MenuLayout(g *gocui.Gui) error {
 	return nil
 }
 
-// SwitchToMenu switches to menu view
-func SwitchToMenu(g *gocui.Gui, v *gocui.View) error {
+// switchToMenu switches to menu view
+func switchToMenu(g *gocui.Gui, v *gocui.View) error {
 	currentView = "menu"
-	g.SetManagerFunc(MenuLayout)
-	SetKeyBindings(g)
+	g.SetManagerFunc(menuLayout)
+	setKeyBindings(g)
 	selectPos = 0
 	return nil
+}
+
+// menuSelection handles the selection of a menu item
+func menuSelection(g *gocui.Gui, v *gocui.View) {
+	currentView = v.Name()
 }
