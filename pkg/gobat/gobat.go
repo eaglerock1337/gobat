@@ -1,9 +1,7 @@
 /*
 Package gobat is responsible for creating and managing the console display for
 the gobat CLI application. It is responsible for creating an ncurses-based window
-that will be used for displaying the game board and top moves. The display struct
-contains the initialized tcell ncurses window as well as necessary member
-functions for interfacing with the ncurses environment during use of the program.
+that will be used for displaying the game board and top moves.
 */
 
 package gobat
@@ -23,7 +21,6 @@ const (
 
 var (
 	h           *hunter.Hunter
-	selectPos   = 0
 	currentView = "menu"
 )
 
@@ -35,7 +32,7 @@ func NewTerminal() *gocui.Gui {
 	}
 
 	screen.SetManagerFunc(menuLayout)
-	screen.SetCurrentView("menu")
+	screen.SetCurrentView(currentView)
 	screen.Mouse = true
 
 	if err := setKeyBindings(screen); err != nil {
@@ -65,11 +62,15 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 
 // enterKey handles enter key input
 func enterKey(g *gocui.Gui, v *gocui.View) error {
+	// if v == nil {
+	// 	g.SetCurrentView(currentView)
+	// 	v = g.CurrentView()
+	// }
 	switch v.Name() {
-	case "menu":
-		menuSelection(g, v)
+	case "menu", "menubg":
+		menuEnterKeySelection(g, v)
 	default:
-		gridSelection(g, v)
+		gridEnterKeySelection(g, v)
 	}
 
 	// _, cy := v.Cursor()
@@ -81,8 +82,12 @@ func enterKey(g *gocui.Gui, v *gocui.View) error {
 // mouseClick handles mouse click input
 func mouseClick(g *gocui.Gui, v *gocui.View) error {
 	switch v.Name() {
+	case "error", "grid", "stats":
+		return nil
 	case "menu":
-
+		menuMouseClickSelection(g, v)
+	default:
+		gridMouseClickSelection(g, v)
 	}
 	return nil
 }
@@ -98,7 +103,7 @@ func setKeyBindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", 'm', gocui.ModNone, switchToMenu); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("", 'h', gocui.ModNone, switchToGrid); err != nil {
+	if err := g.SetKeybinding("", 'g', gocui.ModNone, switchToGrid); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, cursorDown); err != nil {

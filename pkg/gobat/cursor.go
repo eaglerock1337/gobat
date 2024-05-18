@@ -8,12 +8,20 @@ import (
 // cursorDown handles the gocui cursor down keybind
 func cursorDown(g *gocui.Gui, v *gocui.View) error {
 	switch currentView {
-	case "error", "grid", "menu", "menubg", "stats":
+	case "error", "grid", "stats":
 		return nil
+	case "menu", "menubg":
+		currentView = "menu"
+		g.SetCurrentView(currentView)
+		menuSelection++
+		if menuSelection > len(menuText)-1 {
+			menuSelection = len(menuText) - 1
+		}
+		refreshMenuView(g, g.CurrentView())
 	case "select":
-		selectPos++
-		if selectPos > 4 {
-			selectPos = 4
+		gridSelection++
+		if gridSelection > len(h.Shots)+len(gridControls)-1 {
+			gridSelection = len(h.Shots) + len(gridControls) - 1
 		}
 		refreshSelectView(v)
 	default:
@@ -33,12 +41,20 @@ func cursorDown(g *gocui.Gui, v *gocui.View) error {
 // cursorUp handles the gocui cursor down keybind
 func cursorUp(g *gocui.Gui, v *gocui.View) error {
 	switch currentView {
-	case "error", "grid", "menu", "menubg", "stats":
+	case "error", "grid", "stats":
 		return nil
+	case "menu", "menubg":
+		currentView = "menu"
+		g.SetCurrentView(currentView)
+		menuSelection--
+		if menuSelection < 0 {
+			menuSelection = 0
+		}
+		refreshMenuView(g, g.CurrentView())
 	case "select":
-		selectPos--
-		if selectPos < 0 {
-			selectPos = 0
+		gridSelection--
+		if gridSelection < 0 {
+			gridSelection = 0
 		}
 		refreshSelectView(v)
 	default:
@@ -92,7 +108,7 @@ func cursorRight(g *gocui.Gui, v *gocui.View) error {
 		curSquare, _ := board.SquareByString(currentView)
 		if curSquare.Letter == 9 {
 			currentView = "select"
-			selectPos = 0
+			gridSelection = 0
 		} else {
 			newSquare, err := board.SquareByValue(curSquare.Letter+1, curSquare.Number)
 			if err != nil {

@@ -8,6 +8,13 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+var gridSelection = 0
+var gridControls = []string{
+	// "H - Help",
+	"M - Menu",
+	"Q - Quit",
+}
+
 // gridLayout provides the gocui manager function for the grid screen
 func gridLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
@@ -38,8 +45,14 @@ func gridLayout(g *gocui.Gui) error {
 	return nil
 }
 
-// gridSelection handles the selection of a specific grid square
-func gridSelection(g *gocui.Gui, v *gocui.View) {
+// gridEnterKeySelection handles enter key selection on any grid square
+func gridEnterKeySelection(g *gocui.Gui, v *gocui.View) {
+	n := v.Name()
+	g.SetCurrentView(n)
+}
+
+// gridMouseClickSelection handles mouse click selection of a specific grid square
+func gridMouseClickSelection(g *gocui.Gui, v *gocui.View) {
 	n := v.Name()
 	g.SetCurrentView(n)
 }
@@ -154,8 +167,9 @@ func refreshErrorView(g *gocui.Gui, v *gocui.View) error {
 			v.Clear()
 			fmt.Fprintf(v, "Min Size: %dx%d\n", minX, minY)
 			fmt.Fprintf(v, "Cur Size: %dx%d\n", maxX, maxY)
-			fmt.Fprintln(v, "M - Main Menu")
-			fmt.Fprintln(v, "Q - Quit")
+			for _, line := range gridControls {
+				fmt.Fprintln(v, line)
+			}
 		} else {
 			return err
 		}
@@ -175,7 +189,10 @@ func refreshSelectView(v *gocui.View) {
 	for i, square := range h.Shots {
 		fmt.Fprintf(v, "%d - %s\n", i+1, square.PrintSquare())
 	}
-	v.SetCursor(0, selectPos)
+	for _, line := range gridControls {
+		fmt.Fprintln(v, line)
+	}
+	v.SetCursor(0, gridSelection)
 
 	v.Highlight = false
 	if currentView == "select" {
@@ -232,10 +249,6 @@ func refreshStatsView(v *gocui.View) {
 	if len(h.HitStack) == 0 {
 		fmt.Fprint(v, "  Empty")
 	}
-
-	fmt.Fprintf(v, "\n\nH - Help")
-	fmt.Fprintf(v, "\nM - Menu")
-	fmt.Fprintf(v, "\nQ - Quit")
 }
 
 // switchToGrid switches to grid view
@@ -244,9 +257,11 @@ func switchToGrid(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
 
 	if minX <= maxX && minY <= maxY {
+		gridSelection = 0
+		g.SetCurrentView(currentView)
+
 		g.SetManagerFunc(gridLayout)
 		setKeyBindings(g)
-		selectPos = 0
 	}
 
 	return nil
