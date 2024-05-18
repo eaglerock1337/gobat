@@ -36,6 +36,6 @@ func (h *HeatMap) PopulateMap(p PieceData, initialize bool) {
 }
 
 // GetSquare will return the value of the given Square in the heatmap.
-func (h HeatMap) GetSquare(s board.Square) int {
+func (h *HeatMap) GetSquare(s board.Square) int {
 	return h[s.Letter][s.Number]
 }

@@ -142,6 +142,17 @@ func (h Hunter) InHitStack(s board.Square) bool {
 	return false
 }
 
+// InShots checks if the current square is in the shot list and returns a boolean.
+func (h Hunter) InShots(s board.Square) bool {
+	for _, square := range h.Shots {
+		if square.Letter == s.Letter && square.Number == s.Number {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Refresh will refresh the HeatMap based on the updated piece data and
 // ship data.
 func (h *Hunter) Refresh() {

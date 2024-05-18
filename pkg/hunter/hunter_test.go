@@ -167,6 +167,30 @@ func TestInHitStack(t *testing.T) {
 	}
 }
 
+var expectedShotSquares = [5]board.Square{
+	{Letter: 4, Number: 3},
+	{Letter: 4, Number: 4},
+	{Letter: 4, Number: 5},
+	{Letter: 5, Number: 4},
+	{Letter: 5, Number: 5},
+}
+
+func TestInShots(t *testing.T) {
+	testInShots := NewHunter()
+	testInShots.Seek()
+	for _, square := range expectedShotSquares {
+		if !testInShots.InShots(square) {
+			t.Errorf("InShots returned false for Square %v and Shots %v, expected true", square, testInShots.Shots)
+		}
+	}
+
+	for _, square := range exampleWrongSquares {
+		if testInShots.InShots(square) {
+			t.Errorf("InShots returned true for Square %v and Shots %v, expected false", square, testInShots.Shots)
+		}
+	}
+}
+
 func TestAddShot(t *testing.T) {
 	testAddShot := NewHunter()
 

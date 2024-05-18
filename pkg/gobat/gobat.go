@@ -11,7 +11,7 @@ package gobat
 import (
 	"fmt"
 	"log"
-	"time"
+	"strconv"
 
 	"github.com/eaglerock1337/gobat/pkg/board"
 	"github.com/eaglerock1337/gobat/pkg/hunter"
@@ -21,6 +21,7 @@ import (
 var (
 	minX     = 71
 	minY     = 31
+	gridX    = 50
 	menuText = []string{
 		"H - Start Hunting",
 		"R - Reset Hunter",
@@ -28,14 +29,10 @@ var (
 	}
 )
 
-// Gobat provides all data required for interactive hunter
-type Gobat struct {
-	Screen *gocui.Gui    // gocui terminal screen
-	Hunter hunter.Hunter // ideal strategy hunter
-}
+var h *hunter.Hunter
 
 // NewGobat instantiates a gobat struct including a gocui screen and hunter
-func NewGobat() Gobat {
+func NewTerminal() *gocui.Gui {
 	screen, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		log.Panicln(err)
@@ -49,24 +46,20 @@ func NewGobat() Gobat {
 		log.Panicln(err)
 	}
 
-	hunter := hunter.NewHunter()
-	newGobat := Gobat{screen, hunter}
-	return newGobat
+	hunt := hunter.NewHunter()
+	hunt.Seek()
+	h = &hunt
+
+	return screen
 }
 
 // Run starts the main event loop of the application
-func (g Gobat) Run() {
-	defer g.Screen.Close()
+func Run(g *gocui.Gui) {
+	defer g.Close()
 
-	if err := g.Screen.MainLoop(); err != nil && err != gocui.ErrQuit {
+	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panicln(err)
 	}
-}
-
-// This is literally just here to stop Go from deleting imports I'll need later
-func AnnoyingErrors() {
-	square, _ := board.SquareByString("A1")
-	log.Println(square.PrintSquare())
 }
 
 // GridLayout provides the gocui manager function for the grid menu
@@ -75,7 +68,7 @@ func GridLayout(g *gocui.Gui) error {
 	horLine := "-------------------------------------------------"
 	maxX, maxY := g.Size()
 
-	if v, err := g.SetView("grid", 0, 0, 50, 30); err != nil {
+	if v, err := g.SetView("grid", 0, 0, gridX, minY-1); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -89,19 +82,77 @@ func GridLayout(g *gocui.Gui) error {
 		}
 	}
 
-	if v, err := g.SetView("side", 51, 0, 70, 30); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
+	letters := "ABCDEFGHIJ"
+	for row := 0; row < 10; row++ {
+		for col, letter := range letters {
+			viewName := string(letter) + strconv.Itoa(row+1)
+			if v, err := g.SetView(viewName, row*5, col*3, row*5+5, col*3+3); err != nil {
+				if err != gocui.ErrUnknownView {
+					return err
+				}
+				v.Frame = false
+			} else {
+				v.Clear()
+				fmt.Fprintf(v, " %s\n", viewName)
+				square, err := board.SquareByString(viewName)
+				if h.InShots(square) {
+					v.BgColor = gocui.ColorGreen
+				} else {
+					v.BgColor = gocui.ColorDefault
+				}
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(v, " %d", h.HeatMap.GetSquare(square))
+			}
 		}
-	} else {
-		v.Title = "Controls"
-		v.Wrap = true
-		v.Clear()
-		fmt.Fprintln(v, "Side view stuff go here.")
 	}
 
-	if _, err := g.SetCurrentView("side"); err != nil {
-		return err
+	if maxX >= minX {
+		if v, err := g.SetView("stats", gridX+1, 0, maxX-1, 2*minY/3); err != nil {
+			if err != gocui.ErrUnknownView {
+				return err
+			}
+			v.Title = "Game Statistics"
+			v.Wrap = true
+		} else {
+			v.Clear()
+			perms := 0
+			fmt.Fprintf(v, "Remaining ships:\n")
+			for _, ship := range h.Ships {
+				fmt.Fprintf(v, "  %s\n", ship.GetType())
+				perms += h.Data[ship.GetLength()].Len()
+			}
+			fmt.Fprintf(v, "\nTurns Taken: %d\n", h.Turns)
+			fmt.Fprintf(v, "Permutations: %d\n", perms)
+			fmt.Fprintf(v, "\nActive Hitstack:\n")
+			for _, square := range h.HitStack {
+				fmt.Fprintf(v, "%s ", square.PrintSquare())
+			}
+			if len(h.HitStack) == 0 {
+				fmt.Fprint(v, "  Empty")
+			}
+
+		}
+
+		if v, err := g.SetView("select", gridX+1, 2*minY/3+1, maxX-1, minY-1); err != nil {
+			if err != gocui.ErrUnknownView {
+				return err
+			}
+		} else {
+			v.Title = "Select Option"
+			v.Wrap = true
+			v.Highlight = true
+			v.Clear()
+			for i, square := range h.Shots {
+				fmt.Fprintf(v, "%d - %s\n", i+1, square.PrintSquare())
+			}
+			v.SetCursor(0, 0)
+		}
+
+		if _, err := g.SetCurrentView("select"); err != nil {
+			return err
+		}
 	}
 
 	if v, err := g.SetView("error", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
@@ -134,15 +185,15 @@ func GridLayout(g *gocui.Gui) error {
 // MenuLayout provides the gocui manager function for the main menu
 func MenuLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
-	if v, err := g.SetView("menubg", 0, 0, maxX-1, maxY-1); err == nil {
+	if v, err := g.SetView("menubg", 0, 0, maxX-1, maxY-1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+	} else {
 		if maxX < minX || maxY < minY {
 			v.BgColor = gocui.ColorRed
 		} else {
 			v.BgColor = gocui.ColorDefault
-		}
-	} else {
-		if err != gocui.ErrUnknownView {
-			return err
 		}
 	}
 
@@ -172,11 +223,7 @@ func Quit(g *gocui.Gui, v *gocui.View) error {
 // SwitchToGrid switches to grid view
 func SwitchToGrid(g *gocui.Gui, v *gocui.View) error {
 	maxX, maxY := g.Size()
-	if maxX < minX || maxY < minY {
-		v.BgColor = gocui.ColorRed
-		time.Sleep(time.Second / 10)
-		v.BgColor = gocui.ColorDefault
-	} else {
+	if minX <= maxX && minY <= maxY {
 		g.SetManagerFunc(GridLayout)
 		SetKeyBindings(g)
 	}

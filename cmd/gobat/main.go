@@ -5,6 +5,6 @@ import (
 )
 
 func main() {
-	gobat := gobat.NewGobat()
-	gobat.Run()
+	screen := gobat.NewTerminal()
+	gobat.Run(screen)
 }
