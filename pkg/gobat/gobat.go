@@ -26,7 +26,7 @@ const (
 
 var (
 	h           *hunter.Hunter
-	selectPos   = 1
+	selectPos   = 0
 	currentView = "menu"
 	menuText    = []string{
 		"H - Start Hunting",
@@ -74,15 +74,16 @@ func RefreshSelectView(v *gocui.View) {
 	}
 	v.SetCursor(0, selectPos)
 	v.Highlight = false
-	if v.Name() == currentView {
+	if currentView == "select" {
 		v.Highlight = true
 	}
 }
 
 // RefreshSquareView refreshes a specific square on the grid screen
 func RefreshSquareView(v *gocui.View) {
+	v.Highlight = false
 	v.Clear()
-	fmt.Fprintf(v, " %s\n", v.Name())
+	fmt.Fprintf(v, " %s \n", v.Name())
 	square, _ := board.SquareByString(v.Name())
 	if h.InShots(square) {
 		v.BgColor = gocui.ColorGreen
@@ -118,9 +119,9 @@ func GridLayout(g *gocui.Gui) error {
 	}
 
 	letters := "ABCDEFGHIJ"
-	for row := 0; row < 10; row++ {
-		for col, letter := range letters {
-			viewName := string(letter) + strconv.Itoa(row+1)
+	for row, letter := range letters {
+		for col := 0; col < 10; col++ {
+			viewName := string(letter) + strconv.Itoa(col+1)
 			if v, err := g.SetView(viewName, row*5, col*3, row*5+5, col*3+3); err != nil {
 				if err != gocui.ErrUnknownView {
 					return err
@@ -259,37 +260,120 @@ func SwitchToMenu(g *gocui.Gui, v *gocui.View) error {
 	currentView = "menu"
 	g.SetManagerFunc(MenuLayout)
 	SetKeyBindings(g)
+	selectPos = 0
 	return nil
 }
 
-// SelectCursorDown handles the cursor down keybind in the select view
-func SelectCursorDown(g *gocui.Gui, v *gocui.View) error {
-	selectPos++
-	if selectPos > 4 {
-		selectPos = 4
+// CursorDown handles the gocui cursor down keybind
+func CursorDown(g *gocui.Gui, v *gocui.View) error {
+	switch currentView {
+	case "error", "grid", "menu", "menubg", "stats":
+		return nil
+	case "select":
+		selectPos++
+		if selectPos > 4 {
+			selectPos = 4
+		}
+		RefreshSelectView(v)
+	default:
+		curSquare, _ := board.SquareByString(currentView)
+		newSquare, err := board.SquareByValue(curSquare.Letter, curSquare.Number+1)
+		if err != nil {
+			return nil
+		}
+		currentView = newSquare.PrintSquare()
+		if _, err := g.SetCurrentView(currentView); err != nil {
+			return err
+		}
 	}
-	RefreshSelectView(v)
 	return nil
 }
 
-// SelectCursorUp handles the cursor down keybind in the select view
-func SelectCursorUp(g *gocui.Gui, v *gocui.View) error {
-	selectPos--
-	if selectPos < 0 {
-		selectPos = 0
+// CursorUp handles the gocui cursor down keybind
+func CursorUp(g *gocui.Gui, v *gocui.View) error {
+	switch currentView {
+	case "error", "grid", "menu", "menubg", "stats":
+		return nil
+	case "select":
+		selectPos--
+		if selectPos < 0 {
+			selectPos = 0
+		}
+		RefreshSelectView(v)
+	default:
+		curSquare, _ := board.SquareByString(currentView)
+		newSquare, err := board.SquareByValue(curSquare.Letter, curSquare.Number-1)
+		if err != nil {
+			return nil
+		}
+		currentView = newSquare.PrintSquare()
+		if _, err := g.SetCurrentView(currentView); err != nil {
+			return err
+		}
 	}
-	RefreshSelectView(v)
 	return nil
 }
 
-// SelectCursorLeft handles the cursor left keybind in the select view
-func SelectCursorLeft(g *gocui.Gui, v *gocui.View) error {
-	currentView = "J10"
-	if _, err := g.SetCurrentView("J10"); err != nil {
-		return err
+// CursorLeft handles the gocui cursor left keybind
+func CursorLeft(g *gocui.Gui, v *gocui.View) error {
+	switch currentView {
+	case "select":
+		currentView = "J10"
+		if _, err := g.SetCurrentView("J10"); err != nil {
+			return err
+		}
+		RefreshSelectView(v)
+	case "error", "grid", "menu", "menubg", "stats":
+		return nil
+	default:
+		curSquare, _ := board.SquareByString(currentView)
+		if curSquare.Letter > 0 {
+			newSquare, err := board.SquareByValue(curSquare.Letter-1, curSquare.Number)
+			if err != nil {
+				return err
+			}
+			currentView = newSquare.PrintSquare()
+			if _, err := g.SetCurrentView(currentView); err != nil {
+				return err
+			}
+		}
 	}
-	RefreshSelectView(v)
 	RefreshSquareView(g.CurrentView())
+	return nil
+}
+
+// CursorRight handles the gocui cursor Right keybind
+func CursorRight(g *gocui.Gui, v *gocui.View) error {
+	switch currentView {
+	case "error", "grid", "menu", "menubg", "select", "stats":
+		return nil
+	default:
+		curSquare, _ := board.SquareByString(currentView)
+		if curSquare.Letter == 9 {
+			currentView = "select"
+			selectPos = 0
+		} else {
+			newSquare, err := board.SquareByValue(curSquare.Letter+1, curSquare.Number)
+			if err != nil {
+				return err
+			}
+			currentView = newSquare.PrintSquare()
+		}
+		if _, err := g.SetCurrentView(currentView); err != nil {
+			return err
+		}
+		RefreshSquareView(v)
+		if currentView == "select" {
+			RefreshSelectView(g.CurrentView())
+		} else {
+			RefreshSquareView(g.CurrentView())
+		}
+	}
+	return nil
+}
+
+// HandleSelection handles selection with the enter key
+func HandleSelection(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
@@ -304,21 +388,23 @@ func SetKeyBindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", 'm', gocui.ModNone, SwitchToMenu); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("menu", 'h', gocui.ModNone, SwitchToGrid); err != nil {
+	if err := g.SetKeybinding("", 'h', gocui.ModNone, SwitchToGrid); err != nil {
 		return err
 	}
-
-	if err := g.SetKeybinding("select", gocui.KeyArrowDown, gocui.ModNone, SelectCursorDown); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, CursorDown); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("select", gocui.KeyArrowUp, gocui.ModNone, SelectCursorUp); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyArrowUp, gocui.ModNone, CursorUp); err != nil {
 		return err
 	}
-	if err := g.SetKeybinding("select", gocui.KeyArrowLeft, gocui.ModNone, SelectCursorLeft); err != nil {
+	if err := g.SetKeybinding("", gocui.KeyArrowLeft, gocui.ModNone, CursorLeft); err != nil {
 		return err
 	}
-	// if err := g.SetKeybinding("select", gocui.KeyEnter, gocui.ModNone, SelectOption); err != nil {
-	// 	return err
-	// }
+	if err := g.SetKeybinding("", gocui.KeyArrowRight, gocui.ModNone, CursorRight); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("", gocui.KeyEnter, gocui.ModNone, HandleSelection); err != nil {
+		return err
+	}
 	return nil
 }
