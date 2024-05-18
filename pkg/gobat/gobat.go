@@ -25,16 +25,17 @@ const (
 )
 
 var (
-	h         *hunter.Hunter
-	selectPos = 1
-	menuText  = []string{
+	h           *hunter.Hunter
+	selectPos   = 1
+	currentView = "menu"
+	menuText    = []string{
 		"H - Start Hunting",
 		"R - Reset Hunter",
 		"Q - Quit Gobat",
 	}
 )
 
-// NewGobat instantiates a gobat struct including a gocui screen and hunter
+// NewTerminal instantiates a gobat terminal screen
 func NewTerminal() *gocui.Gui {
 	screen, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
@@ -72,6 +73,10 @@ func RefreshSelectView(v *gocui.View) {
 		fmt.Fprintf(v, "%d - %s\n", i+1, square.PrintSquare())
 	}
 	v.SetCursor(0, selectPos)
+	v.Highlight = false
+	if v.Name() == currentView {
+		v.Highlight = true
+	}
 }
 
 // RefreshSquareView refreshes a specific square on the grid screen
@@ -85,6 +90,11 @@ func RefreshSquareView(v *gocui.View) {
 		v.BgColor = gocui.ColorDefault
 	}
 	fmt.Fprintf(v, " %d", h.HeatMap.GetSquare(square))
+	v.SetCursor(0, 0)
+	v.Highlight = false
+	if v.Name() == currentView {
+		v.Highlight = true
+	}
 }
 
 // GridLayout provides the gocui manager function for the grid screen
@@ -162,7 +172,7 @@ func GridLayout(g *gocui.Gui) error {
 			RefreshSelectView(v)
 		}
 
-		if _, err := g.SetCurrentView("select"); err != nil {
+		if _, err := g.SetCurrentView(currentView); err != nil {
 			return err
 		}
 	}
@@ -234,6 +244,7 @@ func Quit(g *gocui.Gui, v *gocui.View) error {
 
 // SwitchToGrid switches to grid view
 func SwitchToGrid(g *gocui.Gui, v *gocui.View) error {
+	currentView = "select"
 	maxX, maxY := g.Size()
 	if minX <= maxX && minY <= maxY {
 		g.SetManagerFunc(GridLayout)
@@ -245,6 +256,7 @@ func SwitchToGrid(g *gocui.Gui, v *gocui.View) error {
 
 // SwitchToMenu switches to menu view
 func SwitchToMenu(g *gocui.Gui, v *gocui.View) error {
+	currentView = "menu"
 	g.SetManagerFunc(MenuLayout)
 	SetKeyBindings(g)
 	return nil
@@ -270,6 +282,17 @@ func SelectCursorUp(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+// SelectCursorLeft handles the cursor left keybind in the select view
+func SelectCursorLeft(g *gocui.Gui, v *gocui.View) error {
+	currentView = "J10"
+	if _, err := g.SetCurrentView("J10"); err != nil {
+		return err
+	}
+	RefreshSelectView(v)
+	RefreshSquareView(g.CurrentView())
+	return nil
+}
+
 // SetKeyBindings sets all global and view keybindings
 func SetKeyBindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, Quit); err != nil {
@@ -284,10 +307,14 @@ func SetKeyBindings(g *gocui.Gui) error {
 	if err := g.SetKeybinding("menu", 'h', gocui.ModNone, SwitchToGrid); err != nil {
 		return err
 	}
+
 	if err := g.SetKeybinding("select", gocui.KeyArrowDown, gocui.ModNone, SelectCursorDown); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("select", gocui.KeyArrowUp, gocui.ModNone, SelectCursorUp); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("select", gocui.KeyArrowLeft, gocui.ModNone, SelectCursorLeft); err != nil {
 		return err
 	}
 	// if err := g.SetKeybinding("select", gocui.KeyEnter, gocui.ModNone, SelectOption); err != nil {
