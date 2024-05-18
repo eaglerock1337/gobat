@@ -33,9 +33,17 @@ func gridLayout(g *gocui.Gui) error {
 }
 
 // gridEnterKeySelection handles enter key selection on any grid square
-func gridEnterKeySelection(g *gocui.Gui, v *gocui.View) {
-	n := v.Name()
-	g.SetCurrentView(n)
+func gridEnterKeySelection(g *gocui.Gui, v *gocui.View) error {
+	switch currentView {
+	case "select", "stats":
+		if gridSelection < len(h.Shots) {
+			if err := h.Turn(h.Shots[gridSelection], "Miss"); err != nil {
+				return err
+			}
+		}
+	}
+	switchToGrid(g, v)
+	return nil
 }
 
 // gridMouseClickSelection handles mouse click selection of a specific grid square

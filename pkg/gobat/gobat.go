@@ -68,9 +68,13 @@ func enterKey(g *gocui.Gui, v *gocui.View) error {
 	}
 	switch v.Name() {
 	case "menu", "menubg":
-		menuEnterKeySelection(g, v)
+		if err := menuEnterKeySelection(g, v); err != nil {
+			return err
+		}
 	default:
-		gridEnterKeySelection(g, v)
+		if err := gridEnterKeySelection(g, v); err != nil {
+			return err
+		}
 	}
 	return nil
 }
