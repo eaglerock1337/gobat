@@ -212,15 +212,24 @@ func RefreshStatsView(v *gocui.View) {
 
 	fmt.Fprintf(v, "\nTurns Taken: %d\n", h.Turns)
 	fmt.Fprintf(v, "Permutations: %d\n", perms)
-	fmt.Fprintf(v, "\nActive Hitstack:\n")
 
+	mode := "Destroy"
+	if h.SeekMode {
+		mode = "Seek"
+	}
+	fmt.Fprintf(v, "Hunter: %s\n", mode)
+
+	fmt.Fprintf(v, "\nActive Hitstack:\n")
 	for _, square := range h.HitStack {
 		fmt.Fprintf(v, "%s ", square.PrintSquare())
 	}
-
 	if len(h.HitStack) == 0 {
 		fmt.Fprint(v, "  Empty")
 	}
+
+	fmt.Fprintf(v, "\n\nH - Help")
+	fmt.Fprintf(v, "\nM - Menu")
+	fmt.Fprintf(v, "\nQ - Quit")
 }
 
 // SwitchToGrid switches to grid view

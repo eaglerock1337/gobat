@@ -6,6 +6,12 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+var menuText = []string{
+	"H - Start Hunting",
+	"R - Reset Hunter",
+	"Q - Quit Gobat",
+}
+
 // MenuLayout provides the gocui manager function for the main menu
 func MenuLayout(g *gocui.Gui) error {
 	maxX, maxY := g.Size()

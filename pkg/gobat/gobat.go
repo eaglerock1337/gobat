@@ -25,11 +25,6 @@ var (
 	h           *hunter.Hunter
 	selectPos   = 0
 	currentView = "menu"
-	menuText    = []string{
-		"H - Start Hunting",
-		"R - Reset Hunter",
-		"Q - Quit Gobat",
-	}
 )
 
 // NewTerminal instantiates a gobat terminal screen
