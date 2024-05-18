@@ -62,10 +62,10 @@ func quit(g *gocui.Gui, v *gocui.View) error {
 
 // enterKey handles enter key input
 func enterKey(g *gocui.Gui, v *gocui.View) error {
-	// if v == nil {
-	// 	g.SetCurrentView(currentView)
-	// 	v = g.CurrentView()
-	// }
+	if v == nil {
+		g.SetCurrentView(currentView)
+		v = g.CurrentView()
+	}
 	switch v.Name() {
 	case "menu", "menubg":
 		menuEnterKeySelection(g, v)
