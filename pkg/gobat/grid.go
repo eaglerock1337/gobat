@@ -17,31 +17,18 @@ var gridControls = []string{
 
 // gridLayout provides the gocui manager function for the grid screen
 func gridLayout(g *gocui.Gui) error {
-	maxX, maxY := g.Size()
-
 	if err := initializeGridView(g); err != nil {
 		return err
 	}
-
 	if err := initializeSquareViews(g); err != nil {
 		return err
 	}
-
 	if err := initializeSideViews(g); err != nil {
 		return err
 	}
-
-	if v, err := g.SetView("error", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-		v.Title = "Screen too small"
-	} else {
-		if err := refreshErrorView(g, v); err != nil {
-			return err
-		}
+	if err := initializeErrorView(g); err != nil {
+		return err
 	}
-
 	return nil
 }
 
@@ -55,6 +42,23 @@ func gridEnterKeySelection(g *gocui.Gui, v *gocui.View) {
 func gridMouseClickSelection(g *gocui.Gui, v *gocui.View) {
 	n := v.Name()
 	g.SetCurrentView(n)
+}
+
+// initializeErrorView initializes the error view
+func initializeErrorView(g *gocui.Gui) error {
+	maxX, maxY := g.Size()
+
+	if v, err := g.SetView("error", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Title = "Screen too small"
+	} else {
+		if err := refreshErrorView(g, v); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // initializeGridView initializes the grid view in the grid screen
@@ -165,8 +169,8 @@ func refreshErrorView(g *gocui.Gui, v *gocui.View) error {
 		v.BgColor = gocui.ColorRed
 		if v, err := g.SetViewOnTop("error"); err == nil {
 			v.Clear()
-			fmt.Fprintf(v, "Min Size: %dx%d\n", minX, minY)
-			fmt.Fprintf(v, "Cur Size: %dx%d\n", maxX, maxY)
+			fmt.Fprintf(v, "Need: %dx%d\n", minX, minY)
+			fmt.Fprintf(v, "Have: %dx%d\n", maxX, maxY)
 			for _, line := range gridControls {
 				fmt.Fprintln(v, line)
 			}
