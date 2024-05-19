@@ -133,8 +133,8 @@ func setKeyBindings(g *gocui.Gui) error {
 	return nil
 }
 
-// initializePromptView initializes the general prompt view
-func initializePromptView(g *gocui.Gui) error {
+// showPromptView shows the general prompt view
+func showPromptView(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
 	if v, err := g.SetView("prompt", maxX/2-7, maxY/2-4, maxX/2+7, maxY/2+4); err != nil {
@@ -151,7 +151,7 @@ func initializePromptView(g *gocui.Gui) error {
 	return nil
 }
 
-// refreshPromptView refreshes the select view in the grid screen
+// refreshPromptView refreshes the general prompt view
 func refreshPromptView(v *gocui.View) {
 	v.Clear()
 	for _, line := range promptOptions {

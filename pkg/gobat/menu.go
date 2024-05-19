@@ -15,10 +15,10 @@ var menuControls = []string{
 
 // menuLayout provides the gocui manager function for the main menu
 func menuLayout(g *gocui.Gui) error {
-	if err := initializeMenuBackgroundView(g); err != nil {
+	if err := showMenuBackgroundView(g); err != nil {
 		return err
 	}
-	if err := initializeMenuView(g); err != nil {
+	if err := showMenuView(g); err != nil {
 		return err
 	}
 	return nil
@@ -45,8 +45,8 @@ func menuMouseClickSelection(g *gocui.Gui, v *gocui.View) {
 	g.SetCurrentView(currentView)
 }
 
-// initializeMenuView initializes the menu view in the menu screen
-func initializeMenuView(g *gocui.Gui) error {
+// showMenuView shows the menu view in the menu screen
+func showMenuView(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
 	if v, err := g.SetView("menu", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
@@ -81,8 +81,8 @@ func refreshMenuView(g *gocui.Gui, v *gocui.View) {
 	}
 }
 
-// initializeMenuBackgroundView initializes the background view in the menu screen
-func initializeMenuBackgroundView(g *gocui.Gui) error {
+// showMenuBackgroundView shows the background view in the menu screen
+func showMenuBackgroundView(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 	if _, err := g.SetView("menubg", 0, 0, maxX-1, maxY-1); err != nil {
 		if err != gocui.ErrUnknownView {

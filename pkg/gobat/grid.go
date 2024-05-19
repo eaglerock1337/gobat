@@ -20,16 +20,16 @@ var gridControls = []string{
 
 // gridLayout provides the gocui manager function for the grid screen
 func gridLayout(g *gocui.Gui) error {
-	if err := initializeGridView(g); err != nil {
+	if err := showGridView(g); err != nil {
 		return err
 	}
-	if err := initializeSquareViews(g); err != nil {
+	if err := showSquareViews(g); err != nil {
 		return err
 	}
-	if err := initializeSideViews(g); err != nil {
+	if err := showSideViews(g); err != nil {
 		return err
 	}
-	if err := initializeErrorView(g); err != nil {
+	if err := showErrorView(g); err != nil {
 		return err
 	}
 	return nil
@@ -55,8 +55,8 @@ func gridMouseClickSelection(g *gocui.Gui, v *gocui.View) {
 	g.SetCurrentView(n)
 }
 
-// initializeGridView initializes the grid view in the grid screen
-func initializeGridView(g *gocui.Gui) error {
+// showGridView shows the grid view in the grid screen
+func showGridView(g *gocui.Gui) error {
 	vertLine := "    |    |    |    |    |    |    |    |    |"
 	horLine := "-------------------------------------------------"
 
@@ -77,8 +77,8 @@ func initializeGridView(g *gocui.Gui) error {
 	return nil
 }
 
-// initializeSquareViews initializes all square views in the grid screen
-func initializeSquareViews(g *gocui.Gui) error {
+// showSquareViews shows all square views in the grid screen
+func showSquareViews(g *gocui.Gui) error {
 	letters := "ABCDEFGHIJ"
 
 	for row, letter := range letters {
@@ -121,16 +121,16 @@ func refreshSquareView(v *gocui.View) {
 	}
 }
 
-// initializeSideViews initializes all side views in the grid screen
-func initializeSideViews(g *gocui.Gui) error {
+// showSideViews shows all side views in the grid screen
+func showSideViews(g *gocui.Gui) error {
 	maxX, _ := g.Size()
 	if maxX < minX {
 		return nil
 	}
-	if err := initializeStatsView(g); err != nil {
+	if err := showStatsView(g); err != nil {
 		return err
 	}
-	if err := initializeSelectView(g); err != nil {
+	if err := showSelectView(g); err != nil {
 		return err
 	}
 	if _, err := g.SetCurrentView(currentView); err != nil {
@@ -139,8 +139,8 @@ func initializeSideViews(g *gocui.Gui) error {
 	return nil
 }
 
-// initializeStatsView initializes the stats view in the grid screen
-func initializeStatsView(g *gocui.Gui) error {
+// showStatsView shows the stats view in the grid screen
+func showStatsView(g *gocui.Gui) error {
 	maxX, _ := g.Size()
 
 	if v, err := g.SetView("stats", gridX+1, 0, maxX-1, 2*minY/3); err != nil {
@@ -186,8 +186,8 @@ func refreshStatsView(v *gocui.View) {
 	}
 }
 
-// initializeSelectView initializes the select view in the grid screen
-func initializeSelectView(g *gocui.Gui) error {
+// showSelectView shows the select view in the grid screen
+func showSelectView(g *gocui.Gui) error {
 	maxX, _ := g.Size()
 
 	if v, err := g.SetView("select", gridX+1, 2*minY/3+1, maxX-1, minY-1); err != nil {
@@ -224,8 +224,8 @@ func refreshSelectView(v *gocui.View) {
 	}
 }
 
-// initializeErrorView initializes the error view
-func initializeErrorView(g *gocui.Gui) error {
+// showErrorView shows the error view
+func showErrorView(g *gocui.Gui) error {
 	maxX, maxY := g.Size()
 
 	if v, err := g.SetView("error", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
