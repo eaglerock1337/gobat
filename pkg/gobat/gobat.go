@@ -7,6 +7,7 @@ that will be used for displaying the game board and top moves.
 package gobat
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/eaglerock1337/gobat/pkg/hunter"
@@ -125,4 +126,42 @@ func setKeyBindings(g *gocui.Gui) error {
 		return err
 	}
 	return nil
+}
+
+// initializePromptView initializes the general prompt view
+func initializePromptView(g *gocui.Gui) error {
+	maxX, _ := g.Size()
+
+	if v, err := g.SetView("prompt", gridX+1, 2*minY/3+1, maxX-1, minY-1); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Title = "Select Option"
+		v.Wrap = true
+		v.Highlight = true
+		v.SelBgColor = gocui.ColorWhite
+		v.SelFgColor = gocui.ColorBlack
+	} else {
+		refreshSelectView(v)
+	}
+
+	return nil
+}
+
+// refreshPromptView refreshes the select view in the grid screen
+func refreshPromptView(v *gocui.View) {
+	v.Clear()
+
+	for i, square := range h.Shots {
+		fmt.Fprintf(v, "%d - %s (%d)\n", i+1, square.PrintSquare(), h.HeatMap.GetSquare(square))
+	}
+	for _, line := range gridControls {
+		fmt.Fprintln(v, line)
+	}
+	v.SetCursor(0, gridSelection)
+
+	v.Highlight = false
+	if currentView == "select" {
+		v.Highlight = true
+	}
 }

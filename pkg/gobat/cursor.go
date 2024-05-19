@@ -14,8 +14,8 @@ func cursorDown(g *gocui.Gui, v *gocui.View) error {
 		currentView = "menu"
 		g.SetCurrentView(currentView)
 		menuSelection++
-		if menuSelection > len(menuText)-1 {
-			menuSelection = len(menuText) - 1
+		if menuSelection > len(menuControls)-1 {
+			menuSelection = len(menuControls) - 1
 		}
 		refreshMenuView(g, g.CurrentView())
 	case "select":

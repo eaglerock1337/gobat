@@ -7,7 +7,7 @@ import (
 )
 
 var menuSelection = 0
-var menuText = []string{
+var menuControls = []string{
 	"G - Go Hunting",
 	// "R - Reset Hunter",
 	"Q - Quit Gobat",
@@ -68,7 +68,7 @@ func initializeMenuView(g *gocui.Gui) error {
 func refreshMenuView(g *gocui.Gui, v *gocui.View) {
 	maxX, maxY := g.Size()
 	v.Clear()
-	for _, line := range menuText {
+	for _, line := range menuControls {
 		fmt.Fprintln(v, line)
 	}
 	fmt.Fprintf(v, "\nMin Size: %dx%d", minX, minY)
