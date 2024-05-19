@@ -9,6 +9,7 @@ import (
 )
 
 var gridSelection = 0
+var selectedSquare board.Square
 var gridControls = []string{
 	// "H - Help",
 	"M - Menu",
@@ -50,23 +51,6 @@ func gridEnterKeySelection(g *gocui.Gui, v *gocui.View) error {
 func gridMouseClickSelection(g *gocui.Gui, v *gocui.View) {
 	n := v.Name()
 	g.SetCurrentView(n)
-}
-
-// initializeErrorView initializes the error view
-func initializeErrorView(g *gocui.Gui) error {
-	maxX, maxY := g.Size()
-
-	if v, err := g.SetView("error", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-		v.Title = "Screen too small"
-	} else {
-		if err := refreshErrorView(g, v); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // initializeGridView initializes the grid view in the grid screen
@@ -114,6 +98,45 @@ func initializeSquareViews(g *gocui.Gui) error {
 	return nil
 }
 
+// refreshSquareView refreshes a specific square on the grid screen
+func refreshSquareView(v *gocui.View) {
+	v.Clear()
+
+	fmt.Fprintf(v, " %s \n", v.Name())
+	square, _ := board.SquareByString(v.Name())
+	fmt.Fprintf(v, " %d", h.HeatMap.GetSquare(square))
+	v.SetCursor(0, 0)
+
+	if h.InShots(square) {
+		v.BgColor = gocui.ColorGreen
+	} else {
+		v.BgColor = gocui.ColorDefault
+	}
+
+	v.Highlight = false
+	if v.Name() == currentView {
+		v.Highlight = true
+	}
+}
+
+// initializeSideViews initializes all side views in the grid screen
+func initializeSideViews(g *gocui.Gui) error {
+	maxX, _ := g.Size()
+	if maxX < minX {
+		return nil
+	}
+	if err := initializeStatsView(g); err != nil {
+		return err
+	}
+	if err := initializeSelectView(g); err != nil {
+		return err
+	}
+	if _, err := g.SetCurrentView(currentView); err != nil {
+		return err
+	}
+	return nil
+}
+
 // initializeStatsView initializes the stats view in the grid screen
 func initializeStatsView(g *gocui.Gui) error {
 	maxX, _ := g.Size()
@@ -129,6 +152,36 @@ func initializeStatsView(g *gocui.Gui) error {
 	}
 
 	return nil
+}
+
+// refreshStatsView refreshes the status view on the grid screen
+func refreshStatsView(v *gocui.View) {
+	v.Clear()
+
+	perms := 0
+	fmt.Fprintf(v, "Remaining ships:\n")
+
+	for _, ship := range h.Ships {
+		fmt.Fprintf(v, "  %s\n", ship.GetType())
+		perms += h.Data[ship.GetLength()].Len()
+	}
+
+	fmt.Fprintf(v, "\nTurns Taken: %d\n", h.Turns)
+	fmt.Fprintf(v, "Total Perms: %d\n", perms)
+
+	mode := "Destroy"
+	if h.SeekMode {
+		mode = "Seek"
+	}
+	fmt.Fprintf(v, "Hunter: %s\n", mode)
+
+	fmt.Fprintf(v, "\nActive Hitstack:\n")
+	for _, square := range h.HitStack {
+		fmt.Fprintf(v, "%s ", square.PrintSquare())
+	}
+	if len(h.HitStack) == 0 {
+		fmt.Fprint(v, "  Empty")
+	}
 }
 
 // initializeSelectView initializes the select view in the grid screen
@@ -151,20 +204,37 @@ func initializeSelectView(g *gocui.Gui) error {
 	return nil
 }
 
-// initializeSideViews initializes all side views in the grid screen
-func initializeSideViews(g *gocui.Gui) error {
-	maxX, _ := g.Size()
-	if maxX < minX {
-		return nil
+// refreshSelectView refreshes the select view in the grid screen
+func refreshSelectView(v *gocui.View) {
+	v.Clear()
+
+	for i, square := range h.Shots {
+		fmt.Fprintf(v, "%d - %s (%d)\n", i+1, square.PrintSquare(), h.HeatMap.GetSquare(square))
 	}
-	if err := initializeStatsView(g); err != nil {
-		return err
+	for _, line := range gridControls {
+		fmt.Fprintln(v, line)
 	}
-	if err := initializeSelectView(g); err != nil {
-		return err
+	v.SetCursor(0, gridSelection)
+
+	v.Highlight = false
+	if currentView == "select" {
+		v.Highlight = true
 	}
-	if _, err := g.SetCurrentView(currentView); err != nil {
-		return err
+}
+
+// initializeErrorView initializes the error view
+func initializeErrorView(g *gocui.Gui) error {
+	maxX, maxY := g.Size()
+
+	if v, err := g.SetView("error", maxX/3, maxY/3, 2*maxX/3, 2*maxY/3); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Title = "Screen too small"
+	} else {
+		if err := refreshErrorView(g, v); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -192,75 +262,6 @@ func refreshErrorView(g *gocui.Gui, v *gocui.View) error {
 	}
 
 	return nil
-}
-
-// refreshSelectView refreshes the select view in the grid screen
-func refreshSelectView(v *gocui.View) {
-	v.Clear()
-
-	for i, square := range h.Shots {
-		fmt.Fprintf(v, "%d - %s (%d)\n", i+1, square.PrintSquare(), h.HeatMap.GetSquare(square))
-	}
-	for _, line := range gridControls {
-		fmt.Fprintln(v, line)
-	}
-	v.SetCursor(0, gridSelection)
-
-	v.Highlight = false
-	if currentView == "select" {
-		v.Highlight = true
-	}
-}
-
-// refreshSquareView refreshes a specific square on the grid screen
-func refreshSquareView(v *gocui.View) {
-	v.Clear()
-
-	fmt.Fprintf(v, " %s \n", v.Name())
-	square, _ := board.SquareByString(v.Name())
-	fmt.Fprintf(v, " %d", h.HeatMap.GetSquare(square))
-	v.SetCursor(0, 0)
-
-	if h.InShots(square) {
-		v.BgColor = gocui.ColorGreen
-	} else {
-		v.BgColor = gocui.ColorDefault
-	}
-
-	v.Highlight = false
-	if v.Name() == currentView {
-		v.Highlight = true
-	}
-}
-
-// refreshStatsView refreshes the status view on the grid screen
-func refreshStatsView(v *gocui.View) {
-	v.Clear()
-
-	perms := 0
-	fmt.Fprintf(v, "Remaining ships:\n")
-
-	for _, ship := range h.Ships {
-		fmt.Fprintf(v, "  %s\n", ship.GetType())
-		perms += h.Data[ship.GetLength()].Len()
-	}
-
-	fmt.Fprintf(v, "\nTurns Taken: %d\n", h.Turns)
-	fmt.Fprintf(v, "Permutations: %d\n", perms)
-
-	mode := "Destroy"
-	if h.SeekMode {
-		mode = "Seek"
-	}
-	fmt.Fprintf(v, "Hunter: %s\n", mode)
-
-	fmt.Fprintf(v, "\nActive Hitstack:\n")
-	for _, square := range h.HitStack {
-		fmt.Fprintf(v, "%s ", square.PrintSquare())
-	}
-	if len(h.HitStack) == 0 {
-		fmt.Fprint(v, "  Empty")
-	}
 }
 
 // switchToGrid switches to grid view
