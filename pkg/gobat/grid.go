@@ -9,7 +9,9 @@ import (
 )
 
 var gridSelection = 0
+
 var selectedSquare board.Square
+
 var gridControls = []string{
 	// "H - Help",
 	"M - Menu",

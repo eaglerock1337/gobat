@@ -21,8 +21,13 @@ const (
 )
 
 var (
-	h           *hunter.Hunter
+	h *hunter.Hunter
+
 	currentView = "menu"
+
+	promptName      string
+	promptOptions   []string
+	promptSelection int
 )
 
 // NewTerminal instantiates a gobat terminal screen
@@ -130,19 +135,17 @@ func setKeyBindings(g *gocui.Gui) error {
 
 // initializePromptView initializes the general prompt view
 func initializePromptView(g *gocui.Gui) error {
-	maxX, _ := g.Size()
+	maxX, maxY := g.Size()
 
-	if v, err := g.SetView("prompt", gridX+1, 2*minY/3+1, maxX-1, minY-1); err != nil {
+	if v, err := g.SetView("prompt", maxX/2-7, maxY/2-4, maxX/2+7, maxY/2+4); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
-		v.Title = "Select Option"
-		v.Wrap = true
 		v.Highlight = true
 		v.SelBgColor = gocui.ColorWhite
 		v.SelFgColor = gocui.ColorBlack
 	} else {
-		refreshSelectView(v)
+		refreshPromptView(v)
 	}
 
 	return nil
@@ -151,17 +154,26 @@ func initializePromptView(g *gocui.Gui) error {
 // refreshPromptView refreshes the select view in the grid screen
 func refreshPromptView(v *gocui.View) {
 	v.Clear()
-
-	for i, square := range h.Shots {
-		fmt.Fprintf(v, "%d - %s (%d)\n", i+1, square.PrintSquare(), h.HeatMap.GetSquare(square))
-	}
-	for _, line := range gridControls {
+	for _, line := range promptOptions {
 		fmt.Fprintln(v, line)
 	}
-	v.SetCursor(0, gridSelection)
+	v.SetCursor(0, promptSelection)
 
+	v.Title = promptName
 	v.Highlight = false
 	if currentView == "select" {
 		v.Highlight = true
 	}
 }
+
+// if condition {
+// 	if v, err := g.SetViewOnTop("error"); err == nil {
+// 		do stuff
+// 	} else {
+// 		return err
+// 	}
+// } else {
+// 	if _, err := g.SetViewOnBottom("error"); err != nil {
+// 		return err
+// 	}
+// }
