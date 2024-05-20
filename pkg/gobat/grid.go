@@ -8,15 +8,20 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
-var gridSelection = 0
+var (
+	gridSelection = 0
+	gridControls  = []string{
+		// "H - Help",
+		"M - Menu",
+		"Q - Quit",
+	}
+	gridPrompt = []string{
+		"M - Miss",
+		"H - Hit",
+	}
+)
 
 var selectedSquare board.Square
-
-var gridControls = []string{
-	// "H - Help",
-	"M - Menu",
-	"Q - Quit",
-}
 
 // gridLayout provides the gocui manager function for the grid screen
 func gridLayout(g *gocui.Gui) error {
@@ -39,13 +44,24 @@ func gridLayout(g *gocui.Gui) error {
 func gridEnterKeySelection(g *gocui.Gui, v *gocui.View) error {
 	switch currentView {
 	case "select", "stats":
-		if gridSelection < len(h.Shots) {
-			if err := h.Turn(h.Shots[gridSelection], "Miss"); err != nil {
+		if gridSelection < len(theHunter.Shots) {
+			if err := theHunter.Turn(theHunter.Shots[gridSelection], "Miss"); err != nil {
 				return err
 			}
 		}
 	}
 	switchToGrid(g, v)
+	return nil
+}
+
+// gridPromptEnterKeySelection handles enter key selection from the square selection prompt
+func gridPromptEnterKeySelection(g *gocui.Gui, v *gocui.View) error {
+	switch promptSelection {
+	case 0:
+		theHunter.Turn(selectedSquare, "Miss")
+	case 1:
+		theHunter.Turn(selectedSquare, "Hit")
+	}
 	return nil
 }
 
@@ -106,10 +122,10 @@ func refreshSquareView(v *gocui.View) {
 
 	fmt.Fprintf(v, " %s \n", v.Name())
 	square, _ := board.SquareByString(v.Name())
-	fmt.Fprintf(v, " %d", h.HeatMap.GetSquare(square))
+	fmt.Fprintf(v, " %d", theHunter.HeatMap.GetSquare(square))
 	v.SetCursor(0, 0)
 
-	if h.InShots(square) {
+	if theHunter.InShots(square) {
 		v.BgColor = gocui.ColorGreen
 	} else {
 		v.BgColor = gocui.ColorDefault
@@ -163,25 +179,25 @@ func refreshStatsView(v *gocui.View) {
 	perms := 0
 	fmt.Fprintf(v, "Remaining ships:\n")
 
-	for _, ship := range h.Ships {
+	for _, ship := range theHunter.Ships {
 		fmt.Fprintf(v, "  %s\n", ship.GetType())
-		perms += h.Data[ship.GetLength()].Len()
+		perms += theHunter.Data[ship.GetLength()].Len()
 	}
 
-	fmt.Fprintf(v, "\nTurns Taken: %d\n", h.Turns)
+	fmt.Fprintf(v, "\nTurns Taken: %d\n", theHunter.Turns)
 	fmt.Fprintf(v, "Total Perms: %d\n", perms)
 
 	mode := "Destroy"
-	if h.SeekMode {
+	if theHunter.SeekMode {
 		mode = "Seek"
 	}
 	fmt.Fprintf(v, "Hunter: %s\n", mode)
 
 	fmt.Fprintf(v, "\nActive Hitstack:\n")
-	for _, square := range h.HitStack {
+	for _, square := range theHunter.HitStack {
 		fmt.Fprintf(v, "%s ", square.PrintSquare())
 	}
-	if len(h.HitStack) == 0 {
+	if len(theHunter.HitStack) == 0 {
 		fmt.Fprint(v, "  Empty")
 	}
 }
@@ -210,8 +226,8 @@ func showSelectView(g *gocui.Gui) error {
 func refreshSelectView(v *gocui.View) {
 	v.Clear()
 
-	for i, square := range h.Shots {
-		fmt.Fprintf(v, "%d - %s (%d)\n", i+1, square.PrintSquare(), h.HeatMap.GetSquare(square))
+	for i, square := range theHunter.Shots {
+		fmt.Fprintf(v, "%d - %s (%d)\n", i+1, square.PrintSquare(), theHunter.HeatMap.GetSquare(square))
 	}
 	for _, line := range gridControls {
 		fmt.Fprintln(v, line)

@@ -7,7 +7,6 @@ that will be used for displaying the game board and top moves.
 package gobat
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/eaglerock1337/gobat/pkg/hunter"
@@ -21,13 +20,8 @@ const (
 )
 
 var (
-	h *hunter.Hunter
-
+	theHunter   *hunter.Hunter
 	currentView = "menu"
-
-	promptName      string
-	promptOptions   []string
-	promptSelection int
 )
 
 // NewTerminal instantiates a gobat terminal screen
@@ -47,7 +41,7 @@ func NewTerminal() *gocui.Gui {
 
 	hunt := hunter.NewHunter()
 	hunt.Seek()
-	h = &hunt
+	theHunter = &hunt
 
 	return screen
 }
@@ -75,6 +69,10 @@ func enterKey(g *gocui.Gui, v *gocui.View) error {
 	switch v.Name() {
 	case "menu", "menubg":
 		if err := menuEnterKeySelection(g, v); err != nil {
+			return err
+		}
+	case "prompt":
+		if err := promptEnterKeySelection(g, v); err != nil {
 			return err
 		}
 	default:
@@ -132,48 +130,3 @@ func setKeyBindings(g *gocui.Gui) error {
 	}
 	return nil
 }
-
-// showPromptView shows the general prompt view
-func showPromptView(g *gocui.Gui) error {
-	maxX, maxY := g.Size()
-
-	if v, err := g.SetView("prompt", maxX/2-7, maxY/2-4, maxX/2+7, maxY/2+4); err != nil {
-		if err != gocui.ErrUnknownView {
-			return err
-		}
-		v.Highlight = true
-		v.SelBgColor = gocui.ColorWhite
-		v.SelFgColor = gocui.ColorBlack
-	} else {
-		refreshPromptView(v)
-	}
-
-	return nil
-}
-
-// refreshPromptView refreshes the general prompt view
-func refreshPromptView(v *gocui.View) {
-	v.Clear()
-	for _, line := range promptOptions {
-		fmt.Fprintln(v, line)
-	}
-	v.SetCursor(0, promptSelection)
-
-	v.Title = promptName
-	v.Highlight = false
-	if currentView == "select" {
-		v.Highlight = true
-	}
-}
-
-// if condition {
-// 	if v, err := g.SetViewOnTop("error"); err == nil {
-// 		do stuff
-// 	} else {
-// 		return err
-// 	}
-// } else {
-// 	if _, err := g.SetViewOnBottom("error"); err != nil {
-// 		return err
-// 	}
-// }

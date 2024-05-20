@@ -20,8 +20,8 @@ func cursorDown(g *gocui.Gui, v *gocui.View) error {
 		refreshMenuView(g, g.CurrentView())
 	case "select":
 		gridSelection++
-		if gridSelection > len(h.Shots)+len(gridControls)-1 {
-			gridSelection = len(h.Shots) + len(gridControls) - 1
+		if gridSelection > len(theHunter.Shots)+len(gridControls)-1 {
+			gridSelection = len(theHunter.Shots) + len(gridControls) - 1
 		}
 		refreshSelectView(v)
 	default:
