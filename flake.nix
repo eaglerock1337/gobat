@@ -1,5 +1,5 @@
 {
-  description = "gobat - Go 1.21.1 dev shell";
+  description = "gobat - Go 1.24 dev shell";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
@@ -9,7 +9,7 @@
     system = "x86_64-linux";
     pkgs = import nixpkgs { inherit system; };
 
-    go = pkgs.go_1_21;  # Go 1.21.x series
+    go = pkgs.go_1_24;  # Go 1.24.x series
   in {
     devShells.${system}.default = pkgs.mkShell {
       packages = [ go ];

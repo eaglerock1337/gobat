@@ -1,6 +1,6 @@
 module github.com/eaglerock1337/gobat
 
-go 1.21.1
+go 1.24.0
 
 require github.com/jroimartin/gocui v0.5.0
 
